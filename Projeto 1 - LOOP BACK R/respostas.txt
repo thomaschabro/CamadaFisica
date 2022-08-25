@@ -1,0 +1,6 @@
+2)
+O efeito deveá ser a redução da velocidade de bits por segundo na transmissão da imagem
+
+3 get buffer tem q escolher qunatos pacotes vao ser transmitir,já o getAllBuffer pega todo o pacotes
+
+
