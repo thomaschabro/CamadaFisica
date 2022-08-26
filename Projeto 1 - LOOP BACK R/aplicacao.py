@@ -70,9 +70,8 @@ def main():
         #faça um print para avisar que a transmissão vai começar.
         #tente entender como o método send funciona!
         #Cuidado! Apenas trasmita arrays de bytes!
-
-        
-               
+     
+           
         
         com1.sendData(np.asarray(txBuffer))  #as array apenas como boa pratica para casos de ter uma outra forma de dados
           
