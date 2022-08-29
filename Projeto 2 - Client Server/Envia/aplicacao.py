@@ -58,8 +58,9 @@ def main():
         # Ativa comunicacao. Inicia os threads e a comunicação seiral 
         com1.enable()
         #Se chegamos até aqui, a comunicação foi aberta com sucesso. Faça um print para informar.
+        print("-------------------------")
         print("Abriu a comunicação")
-        
+        print("-------------------------")
            
                   
         #aqui você deverá gerar os dados a serem transmitidos. 
@@ -71,6 +72,10 @@ def main():
 
        
         print("meu array de bytes tem tamanho {}" .format(len(txBuffer)))
+        print ("")
+        string_enviados =  str(txBuffer).replace("b", "").replace("'", "").split("11")
+        for el in string_enviados:
+            print (el)
         #faça aqui uma conferência do tamanho do seu txBuffer, ou seja, quantos bytes serão enviados.
        
             
@@ -101,9 +106,7 @@ def main():
     
         #Será que todos os bytes enviados estão realmente guardadas? Será que conseguimos verificar?
         #Veja o que faz a funcao do enlaceRX  getBufferLen
-      
-        #acesso aos bytes recebidos
-        print (len(txBuffer))
+    
         
     except Exception as erro:
         print("ops! :-\\")
