@@ -38,13 +38,13 @@ def main():
         com1 = enlace(serialName)
         
         # Criando lista de bytes para serem enviados -------------------------------
-        n_com = random.randint(10, 31)
+        n_com = random.randint(10, 15)
         print(f'Serão enviados {n_com} comandos')
 
         lista_comandos = [b'\x00\xFA\x00\x00', b'\x00\x00\xFA\x00', b'\xFA\x00\x00', b'\x00\xFA\x00', b'\x00\x00\xFA', b'\x00\xFA', b'\xFA\x00', b'\x00', b'\xFA']
         separador = b'\x11'
         bytearray_comandos = bytearray()
-        for i in range (0,n_com+1):
+        for i in range (0,n_com):
             comando = random.choice(lista_comandos)
             bytearray_comandos += comando
             bytearray_comandos += separador
@@ -58,9 +58,9 @@ def main():
         # Ativa comunicacao. Inicia os threads e a comunicação seiral 
         com1.enable()
         #Se chegamos até aqui, a comunicação foi aberta com sucesso. Faça um print para informar.
-        print("-------------------------")
+        print(" ---------------------------------------------------------------------- ")
         print("Abriu a comunicação")
-        print("-------------------------")
+        print(" ---------------------------------------------------------------------- ")
            
                   
         #aqui você deverá gerar os dados a serem transmitidos. 
@@ -72,8 +72,9 @@ def main():
 
        
         print("meu array de bytes tem tamanho {}" .format(len(txBuffer)))
+        print(f"São {len(txBuffer) - 1} bytes de comandos + 1 byte de tamanho")
         print ("")
-        string_enviados =  str(txBuffer).replace("b", "").replace("'", "").split("11")
+        string_enviados =  str(txBuffer   ).replace("b", "").replace("'", "").split("11")
         for el in string_enviados:
             print (el)
         #faça aqui uma conferência do tamanho do seu txBuffer, ou seja, quantos bytes serão enviados.
@@ -96,7 +97,7 @@ def main():
         while True:
             if  com1.tx.getStatus() != 0:
                 txSize = com1.tx.getStatus()       
-                print('enviou = {}' .format(txSize))
+                print('enviou = {} bytes' .format(txSize))
                 break
         
         #Agora vamos iniciar a recepção dos dados. Se algo chegou ao RX, deve estar automaticamente guardado
@@ -106,8 +107,33 @@ def main():
     
         #Será que todos os bytes enviados estão realmente guardadas? Será que conseguimos verificar?
         #Veja o que faz a funcao do enlaceRX  getBufferLen
+
+        print ("")
+        print (" ---------------------------------------------------------------------- ")
+        print ("Recebendo dados")
+        print (" ---------------------------------------------------------------------- ")
     
-        
+
+        # -----------------------------------------------------------------------------------
+        # Recebendo dados
+        while True:
+            rxBuffer, nRx = com1.getData(1)
+            if rxBuffer != None:
+                tamanho_recebido = int.from_bytes(rxBuffer, byteorder='little')
+                print ("O Server recebeu {} comandos" .format(tamanho_recebido))
+                print ("")
+                
+            if (n_com) == tamanho_recebido:
+                print ("Tamanho correto")
+            else:
+                print ("Tamanho incorreto")
+            com1.disable()
+            break
+
+        # -----------------------------------------------------------------------------------
+        # Verificando 
+
+
     except Exception as erro:
         print("ops! :-\\")
         print(erro)

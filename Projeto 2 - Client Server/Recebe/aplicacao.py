@@ -71,36 +71,67 @@ def main():
         #Observe o que faz a rotina dentro do thread RX
         #print um aviso de que a recepção vai começar.
 
-        print("------------------")
+        print(" ---------------------------------------------------------------------- ")
     
         #Será que todos os bytes enviados estão realmente guardadas? Será que conseguimos verificar?
         #Veja o que faz a funcao do enlaceRX  getBufferLen
       
         #acesso aos bytes recebidos
-        while True:
-            rxBuffer, nRx = com1.getData(1)
-            if rxBuffer != None:
-                tamanho = int.from_bytes(rxBuffer, byteorder='little')
-                print ("o tamanho eh {}" .format(tamanho))
-                
-                rxBuffer, nRx = com1.getData(tamanho)
-                
-                if tamanho != len(rxBuffer):
-                    print ("o tamanho eh diferente do tamanho do buffer")
+        inicio  = time.time()
+        diferenca = 0
+        while diferenca < 5:
+            diferenca = time.time() - inicio
+            if not com1.rx.getIsEmpty():
+                rxBuffer, nRx = com1.getData(1)
+                if rxBuffer != None:
+                    tamanho = int.from_bytes(rxBuffer, byteorder='little')
                     
-                comandos_recebidos = rxBuffer
-                break
-    
-        # Encerra comunicação
-        print("-------------------------")
-        print("Comunicação encerrada")
-        print("-------------------------")
-        com1.disable()
+                    
+                    rxBuffer, nRx = com1.getData(tamanho)
+                        
+                    comandos_recebidos = rxBuffer        
+                            
+                    lista_comandos = str(comandos_recebidos).replace("b", "").replace("'", "").split("11")   
+                    lista_comandos.remove("")
+                    print (lista_comandos)
+                    print (f"Foram recebidos {len(lista_comandos)} comandos")
+                    for el in lista_comandos:
+                        print (el)
+                        
+                    print("Fim da aplicação")
 
-        string_comandos = str(comandos_recebidos).replace("b", "").replace("'", "").split("11")    
-        for el in string_comandos:
-            print (el)
-        print("Fim da aplicação")
+
+                    # ------------------------------------------------------------------------------------------------------------
+                    # Vai enviar para o Client o tamanho recebido
+                    print ("")
+                    print (" ---------------------------------------------------------------------- ")
+                    print ("Enviando 'relatório' para o Client")
+                    print (" ---------------------------------------------------------------------- ")
+
+                    txbuffer = len(lista_comandos).to_bytes(4, byteorder='little')
+                    com1.sendData(np.asarray(txbuffer))
+
+                    while True:
+                        if  com1.tx.getStatus() != 0:
+                            txSize = com1.tx.getStatus()       
+                            print(f'Avisou o Client que recebeu {len(lista_comandos)} comandos' .format(txSize))
+                            break
+
+                    # ------------------------------------------------------------------------------------------------------------
+                    
+                
+                    # Encerra comunicação
+                    print("")
+                    print("-------------------------")
+                    print("Comunicação encerrada")
+                    print("-------------------------")
+                    com1.disable()
+                    break
+
+        if diferenca > 5:
+            print ("Tempo excedido (5 segundos)")
+            com1.disable()
+            
 
     except Exception as erro:
         print("ops! :-\\")
