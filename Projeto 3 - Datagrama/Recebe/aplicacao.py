@@ -28,18 +28,25 @@ serialName = "COM4"                  # Windows(variacao de)
 
 ImageW = './img/RecebidaCopia.png'
 
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# Funções necessárias 
+# ------------------------------------------------------------------------------------------------------------------------------------------
+
+
 def createHeader(tipo, sizePayload, index, nPackages):
     header = bytearray()
     if tipo == "handshake":
         header += b'\x00'
-    elif tipo == "info":
+    elif tipo == "handshake_r":
         header += b'\x01'
-    elif tipo == "erro tamanho":
+    elif tipo == "info":
         header += b'\x02'
-    elif tipo == "erro index":
+    elif tipo == "erro tamanho":
         header += b'\x03'
-    elif tipo == "resposta":
+    elif tipo == "erro index":
         header += b'\x04'
+    elif tipo == "resposta":
+        header += b'\x05'
 
     header += index.to_bytes(3, byteorder='little')
     header += sizePayload.to_bytes(3, byteorder='little')
@@ -60,108 +67,62 @@ def createPackage(tipo, sizePayload, index, nPackage, payload):
 
     return package
 
+
+# -----------------------------------------------------------------------------------------------------------------------------------
 def main():
     try:
-        print("Iniciou o main")
         #declaramos um objeto do tipo enlace com o nome "com". Essa é a camada inferior à aplicação. Observe que um parametro
         #para declarar esse objeto é o nome da porta.
         com1 = enlace(serialName)
-        
-    
-        # Ativa comunicacao. Inicia os threads e a comunicação seiral 
         com1.enable()
-        #Se chegamos até aqui, a comunicação foi aberta com sucesso. Faça um print para informar.
-        print("Abriu a comunicação")
-        
-           
-                  
-        #aqui você deverá gerar os dados a serem transmitidos. 
-        #seus dados a serem transmitidos são um array bytes a serem transmitidos. Gere esta lista com o 
-        #nome de txBuffer. Esla sempre irá armazenar os dados a serem enviados.
-        
-        #txBuffer = imagem em bytes!
-       
-            
-        #finalmente vamos transmitir os todos. Para isso usamos a funçao sendData que é um método da camada enlace.
-        #faça um print para avisar que a transmissão vai começar.
-        #tente entender como o método send funciona!
-        #Cuidado! Apenas trasmita arrays de bytes!
 
-        
-               
-        
-        # com1.sendData(np.asarray(txBuffer))  #as array apenas como boa pratica para casos de ter uma outra forma de dados
-          
-        # A camada enlace possui uma camada inferior, TX possui um método para conhecermos o status da transmissão
-        
-        # O método não deve estar fincionando quando usado como abaixo. deve estar retornando zero. Tente entender como esse método funciona e faça-o funcionar.
-        
-        
-        #Agora vamos iniciar a recepção dos dados. Se algo chegou ao RX, deve estar automaticamente guardado
-        #Observe o que faz a rotina dentro do thread RX
-        #print um aviso de que a recepção vai começar.
 
-        print(" ---------------------------------------------------------------------- ")
-    
-        #Será que todos os bytes enviados estão realmente guardadas? Será que conseguimos verificar?
-        #Veja o que faz a funcao do enlaceRX  getBufferLen
-      
-        #acesso aos bytes recebidos
-        inicio  = time.time()
-        diferenca = 0
-        while diferenca < 5:
-            diferenca = time.time() - inicio
+        # -----------------------------------------------------------------------------------------------------------------------------------
+        # Fazendo o HANDHSAKE
+        # -----------------------------------------------------------------------------------------------------------------------------------
+        print("Esperando sinal de HANDSHAKE")
+        print("")
+        
+        
+        while True:
             if not com1.rx.getIsEmpty():
-                rxBuffer, nRx = com1.getData(1)
+                rxBuffer, nRx = com1.getData(10)
+                print(rxBuffer)
+                print("")
                 if rxBuffer != None:
-                    tamanho = int.from_bytes(rxBuffer, byteorder='little')
-                    
-                    
-                    rxBuffer, nRx = com1.getData(tamanho)
-                        
-                    comandos_recebidos = rxBuffer        
-                            
-                    lista_comandos = str(comandos_recebidos).replace("b", "").replace("'", "").split("11")   
-                    lista_comandos.remove("")
-                    print (lista_comandos)
-                    print (f"Foram recebidos {len(lista_comandos)} comandos")
-                    for el in lista_comandos:
-                        print (el)
-                        
-                    print("Fim da aplicação")
-
-
-                    # ------------------------------------------------------------------------------------------------------------
-                    # Vai enviar para o Client o tamanho recebido
-                    print ("")
-                    print (" ---------------------------------------------------------------------- ")
-                    print ("Enviando 'relatório' para o Client")
-                    print (" ---------------------------------------------------------------------- ")
-
-                    txbuffer = len(lista_comandos).to_bytes(4, byteorder='little')
-                    com1.sendData(np.asarray(txbuffer))
-
-                    while True:
-                        if  com1.tx.getStatus() != 0:
-                            txSize = com1.tx.getStatus()       
-                            print(f'Avisou o Client que recebeu {len(lista_comandos)} comandos' .format(txSize))
-                            break
-
-                    # ------------------------------------------------------------------------------------------------------------
-                    
-                
-                    # Encerra comunicação
+                    header = str(rxBuffer)
+                    tipo = rxBuffer[0]
+                    index = rxBuffer[1] + rxBuffer[2] + rxBuffer[3]
+                    sizePayload = rxBuffer[4] + rxBuffer[5] + rxBuffer[6]
+                    nPackages = rxBuffer[7] + rxBuffer[8] + rxBuffer[9]
+                    print("Tipo: ", tipo)
+                    print("Index: ", index)
+                    print("SizePayload: ", sizePayload)
+                    print("nPackages: ", nPackages)
                     print("")
-                    print("-------------------------")
-                    print("Comunicação encerrada")
-                    print("-------------------------")
-                    com1.disable()
+                    print( "Handshake recebido")
+                    print(" ------------------ ")
+                    print("")
+                    break
+                break
+        
+        time.sleep(1)
+        if tipo == 0:
+            print ("Respondendo Handshake")
+            print ("")
+            handshake_response = createPackage("handshake_r", 0, 0, 0, bytearray())
+            com1.sendData(np.asarray(handshake_response))
+            while True:
+                if com1.tx.getStatus() != 0:
+                    txsize = com1.tx.getStatus()
+                    print (f'Enviou resposta do Handshake')
+                    print ("")
+                    print (" ------------------ ")
                     break
 
-        if diferenca > 5:
-            print ("Tempo excedido (5 segundos)")
-            com1.disable()
-            
+        # Handshake FINALIZADO
+                        
+        
 
     except Exception as erro:
         print("ops! :-\\")
