@@ -1,14 +1,12 @@
 #####################################################
 # Camada Física da Computação
-#Carareto
-#11/08/2022
-#Aplicação
+# Carareto
+# 11/08/2022
+# Aplicação
 ####################################################
 
 
 #esta é a camada superior, de aplicação do seu software de comunicação serial UART.
-#para acompanhar a execução e identificar erros, construa prints ao longo do código! 
-
 
 from enlace import *
 import time
@@ -27,17 +25,104 @@ serialName = "COM3"                  # Windows(variacao de)
 
 ImageR = "./img/pixel.png"
 
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# Funções necessárias 
+# ------------------------------------------------------------------------------------------------------------------------------------------
+
+def createHeader(tipo, sizePayload, index, nPackages):
+    header = bytearray()
+    if tipo == "handshake":
+        header += b'\x00'
+    elif tipo == "info":
+        header += b'\x01'
+    elif tipo == "erro tamanho":
+        header += b'\x02'
+    elif tipo == "erro index":
+        header += b'\x03'
+    elif tipo == "resposta":
+        header += b'\x04'
+
+    header += index.to_bytes(3, byteorder='little')
+    header += sizePayload.to_bytes(3, byteorder='little')
+    header += nPackages.to_bytes(3, byteorder='little')
+
+    return header
+
+def createPayload(payload):
+    return payload
+
+def createEOP():
+    eop = bytearray()
+    eop += b'\xff\xff\xff\xff'
+    return eop
+
+def createPackage(tipo, sizePayload, index, nPackage, payload):
+    package = bytearray()
+    package += createHeader(tipo, sizePayload, index, nPackage)
+    package += payload
+    package += createEOP()
+
+    return package
 
 
-
+# -----------------------------------------------------------------------------------------------------------------------------------
 def main():
     try:
-        print("Iniciou o main")
         #declaramos um objeto do tipo enlace com o nome "com". Essa é a camada inferior à aplicação. Observe que um parametro
         #para declarar esse objeto é o nome da porta.
         com1 = enlace(serialName)
+        com1.enable()
+
+        # -----------------------------------------------------------------------------------------------------------------------------------
+        # Fazendo o HANDHSAKE
+        # -----------------------------------------------------------------------------------------------------------------------------------
+        print ("Iniciando Handshake")
+        print ("")
+        payload = bytearray()
+        handshake = createPackage("handshake", 0, 0, 0, payload)
         
-        # Criando lista de bytes para serem enviados -------------------------------
+        enviou_mensagem = False
+        start = time.time()
+        while True:
+            dif = time.time() - start
+            if dif < 5:
+                com1.sendData(np.asarray(handshake))
+                while True:
+                    if  com1.tx.getStatus() != 0:
+                        txSize = com1.tx.getStatus()  
+                        if enviou_mensagem == False:
+                            print('Enviou um pacote como Handshake' .format(txSize))
+                            print("")
+                            enviou_mensagem = True
+                        break
+                                
+            if dif > 5:
+                print (" ------------------------- ")
+                print ("Tempo de espera esgotado")
+                print ("")
+                resposta = input ("Deseja tentar novamente? (s/n)")
+                print ("")
+                print (" ------------------------- ")
+
+                if resposta == "s":
+                    start = time.time()
+                    enviou_mensagem = False
+
+                if resposta == "n":
+                    print ("Comunicação encerrada")
+                    com1.disable()
+                    break
+            
+            if  com1.rx.getBufferLen() != 0:
+                rxSize = com1.rx.getBufferLen()       
+                print('Recebeu um pacote de resposta do Handshake' .format(rxSize))
+                print("")
+                break
+
+        # -----------------------------------------------------------------------------------------------------------------------------------
+        # Criando lista de bytes para serem enviados 
+        # -----------------------------------------------------------------------------------------------------------------------------------
+
         n_com = random.randint(10, 15)
         print(f'Serão enviados {n_com} comandos')
 
@@ -70,7 +155,10 @@ def main():
     
         txBuffer = oficial
 
-       
+        # -----------------------------------------------------------------------------------------------------------------------------------    
+        # Declarando no terminal o tamanho do arquivo a ser enviado 
+        # -----------------------------------------------------------------------------------------------------------------------------------
+
         print("meu array de bytes tem tamanho {}" .format(len(txBuffer)))
         print(f"São {len(txBuffer) - 1} bytes de comandos + 1 byte de tamanho")
         print ("")
@@ -84,10 +172,11 @@ def main():
         #faça um print para avisar que a transmissão vai começar.
         #tente entender como o método send funciona!
         #Cuidado! Apenas trasmita arrays de bytes!
+                       
+        # -----------------------------------------------------------------------------------------------------------------------------------    
+        # Enviando os dados 
+        # -----------------------------------------------------------------------------------------------------------------------------------
 
-        
-               
-        
         com1.sendData(np.asarray(txBuffer))  #as array apenas como boa pratica para casos de ter uma outra forma de dados
           
         # A camada enlace possui uma camada inferior, TX possui um método para conhecermos o status da transmissão
@@ -113,9 +202,10 @@ def main():
         print ("Recebendo dados")
         print (" ---------------------------------------------------------------------- ")
     
+        # -----------------------------------------------------------------------------------------------------------------------------------    
+        # Recebendo os dados de retorno 
+        # -----------------------------------------------------------------------------------------------------------------------------------
 
-        # -----------------------------------------------------------------------------------
-        # Recebendo dados
         while True:
             rxBuffer, nRx = com1.getData(1)
             if rxBuffer != None:
