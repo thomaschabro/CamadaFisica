@@ -48,9 +48,6 @@ def createHeader(tipo, sizePayload, index, nPackages):
 
     return header
 
-def createPayload(payload):
-    return payload
-
 def createEOP():
     eop = bytearray()
     eop += b'\xff\xff\xff\xff'
