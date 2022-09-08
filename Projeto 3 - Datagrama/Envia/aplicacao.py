@@ -77,69 +77,51 @@ def main():
         payload = bytearray()
         handshake = createPackage("handshake", 0,0,0, payload)
         
-        # enviou_mensagem = False
-        # start = time.time()
-        # while True:
-        #     dif = time.time() - start
-        #     if dif < 5:
-        #         com1.sendData(np.asarray(handshake))
-        #         while True:
-        #             if  com1.tx.getStatus() != 0:
-        #                 txSize = com1.tx.getStatus()  
-        #                 if enviou_mensagem == False:
-        #                     print('Enviou um pacote como Handshake')
-        #                     print("")
-        #                     enviou_mensagem = True
-        #                 break
+        enviou_mensagem = False
+        start = time.time()
+        while True:
+            dif = time.time() - start
+            if dif < 5:
+                com1.sendData(np.asarray(handshake))
+                while True:
+                    if  com1.tx.getStatus() != 0:
+                        txSize = com1.tx.getStatus()  
+                        if enviou_mensagem == False:
+                            print('Enviou um pacote como Handshake')
+                            print("")
+                            enviou_mensagem = True
+                        break
 
 
 
-        #         if not com1.rx.getIsEmpty():
-        #             print("Recebeu um pacote")
-        #             rxBuffer, nRx = com1.getData(10)
-        #             if rxBuffer[0] == 1:
-        #                 print (" ------------------------- ")
-        #                 print ("Handshake recebido")
-        #                 print ("")
-        #                 print (" ------------------------- ")
-        #                 break
+                if not com1.rx.getIsEmpty():
+                    print("Recebeu um pacote")
+                    rxBuffer, nRx = com1.getData(10)
+                    if rxBuffer[0] == 1:
+                        print (" ------------------------- ")
+                        print ("")
+                        print ("Handshake recebido")
+                        print ("")
+                        print (" ------------------------- ")
+                        break
                                 
-        #     if dif > 5:
-        #         print (" ------------------------- ")
-        #         print ("Tempo de espera esgotado")
-        #         print ("")
-        #         resposta = input ("Deseja tentar novamente? (s/n)")
-        #         print ("")
-        #         print (" ------------------------- ")
+            if dif > 5:
+                print (" ------------------------- ")
+                print ("")
+                print ("Tempo de espera esgotado")
+                print ("")
+                resposta = input ("Deseja tentar novamente? (s/n) ")
+                print ("")
+                print (" ------------------------- ")
 
-        #         if resposta == "s":
-        #             start = time.time()
-        #             enviou_mensagem = False
+                if resposta == "s":
+                    start = time.time()
+                    enviou_mensagem = False
 
-        #         if resposta == "n":
-        #             print ("Comunicação encerrada")
-        #             com1.disable()
-        #             break
-        # com1.sendData(np.asarray(handshake)) 
-        # while True:
-        #     if  com1.tx.getStatus() != 0:
-        #         txSize = com1.tx.getStatus()  
-        #         print('Enviou um pacote como Handshake')
-        #         print("")
-        #         break
-
-        # while True:
-        #     if not com1.rx.getIsEmpty():
-        #         rxBuffer, nRx = com1.getData(10)
-        #         if rxBuffer[0] == 1:
-        #             print (" ------------------------- ")
-        #             print ("")
-        #             print ("Handshake recebido")
-        #             print ("")
-        #             print (" ------------------------- ")
-        #             break
-        #     else:
-        #         pass
+                if resposta == "n":
+                    print ("Comunicação encerrada")
+                    com1.disable()
+                    break
 
                
         # -----------------------------------------------------------------------------------------------------------------------------------
