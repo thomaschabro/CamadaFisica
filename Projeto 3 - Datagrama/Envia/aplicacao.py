@@ -32,6 +32,10 @@ def createHeader(tipo, sizePayload, index, nPackages):
         header += b'\x04'
     elif tipo == "resposta":
         header += b'\x05'
+    elif tipo == "erro eop":
+        header += b'\x06'
+    elif tipo == "fim":
+        header += b'\x07'
 
     header += index.to_bytes(3, byteorder='little')
     header += sizePayload.to_bytes(3, byteorder='little')
@@ -64,7 +68,7 @@ sys.path.insert(0, 'C:/Users/55119/OneDrive/Área de Trabalho/Insper/4 SEMESTRE/
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
 serialName = "COM3"                  # Windows(variacao de)
 
-imagem = "./img/pixel-frame.png" # Imagem 
+imagem = "./img/pixil-frame-0.png" # Imagem 
 
 def main():
     try:
@@ -130,26 +134,31 @@ def main():
         # -----------------------------------------------------------------------------------------------------------------------------------
         # Fragmentando o arquivo de imagem em partes
         # -----------------------------------------------------------------------------------------------------------------------------------
+        com1.rx.clearBuffer()
         read_image = open(imagem, 'rb').read()
         size_image = len(read_image)
+        print ("Tamanho total da imagem: ", size_image)
 
         # Definido o tamanho do payload
         n_packages = size_image // 114
         if size_image % 114 != 0:
             n_packages += 1
 
+
+        time.sleep(3)
         # Criando o payload
         payload = bytearray()
         for i in range(n_packages):
-            payload += read_image[i*114:(i+1)*114]
-            pacote_imagem = createPackage("info", len(payload), i, n_packages, payload)
+            payload = read_image[i*114:(i+1)*114]
+            pacote_imagem = createPackage("info", len(payload), (i+1), n_packages, payload)
+            print ("")
             
             # Envia o pacote i para o servidor
             com1.sendData(np.asarray(pacote_imagem))
             while True:
                 if  com1.tx.getStatus() != 0:
                     txSize = com1.tx.getStatus()  
-                    print(f'Pacote {i} de {n_packages} enviado')
+                    print(f'Pacote {i+1} de {n_packages} enviado')
                     break
 
             # Recebe a resposta do servidor de que recebeu o pacote
@@ -157,7 +166,28 @@ def main():
                 if not com1.rx.getIsEmpty():
                     rxBuffer, nRx = com1.getData(10)
                     if rxBuffer[0] == 5:
-                        print(f'Pacote {i} de {n_packages} recebido')
+                        print(f'Confirmação recebida')
+                        com1.rx.clearBuffer()
+                        break
+                    elif rxBuffer[0] == 4:
+                        print(f'Erro no index')
+                        com1.rx.clearBuffer()
+                        com1.disable()
+                        break
+                    elif rxBuffer[0] == 3:
+                        print(f'Erro no tamanho')
+                        com1.rx.clearBuffer()
+                        com1.disable()
+                        break
+                    elif rxBuffer[0] == 6:
+                        print(f'Erro no EOP')
+                        com1.rx.clearBuffer()
+                        com1.disable()
+                        break
+                    elif rxBuffer[0] == 7:
+                        print(f'Pacote enviado com sucesso')
+                        com1.rx.clearBuffer()
+                        com1.disable()
                         break
         
 

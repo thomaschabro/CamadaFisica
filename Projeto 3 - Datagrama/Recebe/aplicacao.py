@@ -47,6 +47,10 @@ def createHeader(tipo, sizePayload, index, nPackages):
         header += b'\x04'
     elif tipo == "resposta":
         header += b'\x05'
+    elif tipo == "erro eop":
+        header += b'\x06'
+    elif tipo == "fim":
+        header += b'\x07'
 
     header += index.to_bytes(3, byteorder='little')
     header += sizePayload.to_bytes(3, byteorder='little')
@@ -87,7 +91,6 @@ def main():
         while True:
             if not com1.rx.getIsEmpty():
                 rxBuffer, nRx = com1.getData(10)
-                print(rxBuffer)
                 print("")
                 if rxBuffer != None:
                     header = str(rxBuffer)
@@ -95,14 +98,14 @@ def main():
                     index = rxBuffer[1] + rxBuffer[2] + rxBuffer[3]
                     sizePayload = rxBuffer[4] + rxBuffer[5] + rxBuffer[6]
                     nPackages = rxBuffer[7] + rxBuffer[8] + rxBuffer[9]
-                    print("Tipo: ", tipo)
-                    print("Index: ", index)
-                    print("SizePayload: ", sizePayload)
-                    print("nPackages: ", nPackages)
                     print("")
                     print( "Handshake recebido")
                     print(" ------------------ ")
                     print("")
+                    
+                    # Limpando EOP
+                    eop = com1.rx.getNData(4)
+
                     break
                 break
         
@@ -134,13 +137,14 @@ def main():
         imagem = bytearray()
         nPackages = 0
         end = True
+        ultimo_index = 0
 
         # Recebendo o primeiro pacote
+        com1.rx.clearBuffer()
         while end:
             if not com1.rx.getIsEmpty():
                 # Pega o header do pacote
                 rxBuffer, nRx = com1.getData(10)
-                print(rxBuffer)
                 print("")
 
                 # Pega as informações
@@ -153,22 +157,53 @@ def main():
 
                     # Pega o payload
                     rxBuffer, nRx = com1.getData(sizePayload)
+                    n = len(rxBuffer)
                     imagem += rxBuffer # Soma com a variável imagem
+                    if (sizePayload) != (n + 4):
+                        print ("Erro no tamanho do payload")
+                        time.sleep(1)
+                        erro_tamanho_payload = createPackage("erro tamanho", 0, 0, 0, bytearray())
+                        com1.sendData(np.asarray(erro_tamanho_payload))
+                        break
 
                     # Pega o EOP
                     rxBuffer, nRx = com1.getData(4)
                     if rxBuffer != b'\xff\xff\xff\xff':
                         print ("ERROR: EOP não encontrado")
+                        time.sleep(1)
+                        erro_eop = createPackage("erro eop", 0, 0, 0, bytearray())
+                        com1.sendData(np.asarray(erro_eop))
+                        break
+
+                    if index != ultimo_index + 1:
+                        print ("ERROR: Index errado")
+                        time.sleep(1)
+                        erro_index = createPackage("erro index", 0, 0, 0, bytearray())
+                        com1.sendData(np.asarray(erro_index))
                         break
 
                     # Verifica se o pacote é o último
                     if index == nPackages:
+                        time.sleep(1)
+                        fim = createPackage("fim", 0, 0, 0, bytearray())
+                        com1.sendData(np.asarray(fim))
+                        print ("Enviando pacote de resposta ", index)
+                        print ("")
+                        print ("Terminou de receber o arquivo")
+                        f = open(ImageW, 'wb')
+                        f.write(imagem)
+                        f.close()
                         end = False
+                        com1.disable()
                     else:
                         end = True
                         recebeu_pacote = createPackage("resposta", 0, index, 0, bytearray())
+                        time.sleep(1)
                         com1.sendData(np.asarray(recebeu_pacote))
-                        print ("Recebendo pacote ", index)
+                        print ("Enviando pacote de resposta ", index)
+                        ultimo_index = index
+                        # if ultimo_index == 3:
+                        #     ultimo_index = 2
 
         
 
