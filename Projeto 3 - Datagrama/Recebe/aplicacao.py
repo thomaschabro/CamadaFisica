@@ -158,14 +158,16 @@ def main():
                     # Pega o EOP
                     rxBuffer, nRx = com1.getData(4)
                     if rxBuffer != b'\xff\xff\xff\xff':
-                        break
                         print ("ERROR: EOP não encontrado")
+                        break
 
                     # Verifica se o pacote é o último
                     if index == nPackages:
                         end = False
                     else:
                         end = True
+                        recebeu_pacote = createPackage("resposta", 0, index, 0, bytearray())
+
         
 
     except Exception as erro:
