@@ -167,6 +167,8 @@ def main():
                     else:
                         end = True
                         recebeu_pacote = createPackage("resposta", 0, index, 0, bytearray())
+                        com1.sendData(np.asarray(recebeu_pacote))
+                        print ("Recebendo pacote ", index)
 
         
 
