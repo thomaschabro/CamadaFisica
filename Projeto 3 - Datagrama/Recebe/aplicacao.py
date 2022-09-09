@@ -120,7 +120,41 @@ def main():
                     print (" ------------------ ")
                     break
 
-        # Handshake FINALIZADO
+        # -----------------------------------------------------------------------------------------------------------------------------------
+        # Recebendo o arquivo em pacotes
+        # -----------------------------------------------------------------------------------------------------------------------------------
+        print("Recebendo arquivo")
+        print("")
+        print(" ------------------ ")
+        print("")
+        print("Recebendo pacotes")
+        print("")
+
+        # Variáveis globais para depois ter certeza de que tudo foi certo
+        imagem = bytearray()
+        nPackages = 0
+        end = True
+
+        # Recebendo o primeiro pacote
+        while end:
+            if not com1.rx.getIsEmpty():
+                # Pega o header do pacote
+                rxBuffer, nRx = com1.getData(10)
+                print(rxBuffer)
+                print("")
+
+                # Pega as informações
+                if rxBuffer != None:
+                    header = str(rxBuffer)
+                    tipo = rxBuffer[0]
+                    index = rxBuffer[1] + rxBuffer[2] + rxBuffer[3]
+                    sizePayload = rxBuffer[4] + rxBuffer[5] + rxBuffer[6]
+                    nPackages = rxBuffer[7] + rxBuffer[8] + rxBuffer[9]
+
+                    # Pega o payload
+                    rxBuffer, nRx = com1.getData(sizePayload)
+                    imagem += rxBuffer # Soma com a variável imagem
+
                         
         
 
