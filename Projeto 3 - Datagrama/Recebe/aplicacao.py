@@ -155,7 +155,17 @@ def main():
                     rxBuffer, nRx = com1.getData(sizePayload)
                     imagem += rxBuffer # Soma com a variável imagem
 
-                        
+                    # Pega o EOP
+                    rxBuffer, nRx = com1.getData(4)
+                    if rxBuffer != b'\xff\xff\xff\xff':
+                        break
+                        print ("ERROR: EOP não encontrado")
+
+                    # Verifica se o pacote é o último
+                    if index == nPackages:
+                        end = False
+                    else:
+                        end = True
         
 
     except Exception as erro:
