@@ -12,7 +12,6 @@ import sys
 from enlace import *
 import time
 import numpy as np
-import random
 
 # -----------------------------------------------------------------------------------------------------------------------------------
 # Definindo funções necessárias
@@ -55,8 +54,6 @@ def createPackage(tipo, sizePayload, index, nPackage, payload):
     package += createEOP()
 
     return package
-
-sys.path.insert(0, 'C:/Users/55119/OneDrive/Área de Trabalho/Insper/4 SEMESTRE/CAMFIS/CamadaFisica/Projeto 3 - Datagrama/functions.py')
 
 # voce deverá descomentar e configurar a porta com através da qual ira fazer comunicaçao
 #   para saber a sua porta, execute no terminal :
@@ -113,7 +110,7 @@ def main():
                         print (" ------------------------- ")
                         break
                                 
-            if dif > 5:
+            if dif > 5: 
                 print (" ------------------------- ")
                 print ("")
                 print ("Tempo de espera esgotado")
@@ -145,7 +142,7 @@ def main():
             n_packages += 1
 
 
-        time.sleep(3)
+        time.sleep(5)
         # Criando o payload
         payload = bytearray()
         for i in range(n_packages):
