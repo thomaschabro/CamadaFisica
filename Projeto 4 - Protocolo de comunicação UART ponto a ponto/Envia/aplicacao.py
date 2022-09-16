@@ -40,7 +40,7 @@ def createHeader(tipo, sizePayload, id_arquivo, index, nPackages, h6, h7):
     try:
         header += h5
     except:
-        header += b'\x00'    
+        header += b'\x00' 
     
     # ----- Definindo o h6 -----
     if h6 == None:
@@ -68,7 +68,7 @@ def createPackage(tipo, sizePayload, id_arquivo, index, nPackages, h6, h7, paylo
     return package
 
 
-serialName = "COM3"                  # Windows(variacao de)
+serialName = "COM3"           # Windows(variacao de)
 imagem = "./img/imagem.png"   # Imagem 
 
 
@@ -87,7 +87,7 @@ def main():
         print ("Iniciando comunicação HANDSHAKE")
         print ("")
         payload = bytearray()
-        handshake = createPackage("handshake_envio", 0,1,0,0,0,0, payload)
+        handshake = createPackage("handshake_envio", 0,0,0,0,0,0, payload)
         
         enviou_mensagem = False
         start = time.time()
@@ -155,6 +155,8 @@ def main():
         # -----------------------------------------------------------------------------------------------------------------------------------
         # Inicia o envio de arquivos  
         # -----------------------------------------------------------------------------------------------------------------------------------
+        nao_tem_t4 = True
+
         while inicia:  
             if cont <= n_packages:
                 com1.rx.clearBuffer()
@@ -168,18 +170,22 @@ def main():
                 # Envia o pacotes para o servidor
                 com1.sendData(np.asarray(pacote_imagem))
                 
-                rxBuffer, nRx = com1.getData(10)
-                if rxBuffer[0] == 4:
-                    #recebeu mensagem t4
-                    pass
 
 
-                    
-                if len(rxBuffer)==0:
-                    if time.time() - timer1 > 5:
-                        com1.sendData(np.asarray(pacote_imagem))
-                        timer1 = time.time()
+                while nao_tem_t4:
+
+                    rxBuffer, nRx = com1.getData(10)
+                    if rxBuffer[0] == 4:
+                        #recebeu mensagem t4
+                        rxBuffer, nRx = com1.getData(4)
+                        cont += 1
+                        nao_tem_t4 = False
+
                     else:
+                        if time.time() - timer1 > 5:
+                            com1.sendData(np.asarray(pacote_imagem))
+                            timer1 = time.time()
+
                         if time.time() - timer2 > 20:
                             pacote_timeout = createPackage("timeout", 0, 0, 0, 0, 0, 0, bytearray())
                             com1.sendData(np.asarray(pacote_timeout))
@@ -187,57 +193,17 @@ def main():
                             print(">:-(")
                             com1.disable()
                             inicia = False
+
                         else:
-                            rxBuffer, nRx = com1.getData(10)
                             if rxBuffer[0] == 6:
                                 #recebeu mensagem t6
                                 timer1 = time.time()
                                 timer2 = time.time()
+                                
+                                # "Corrigir contagem ?"
+                                cont = rxBuffer[6]
 
-                            else:
-                                pass
-
-                
-                
-
-            
-
-                while True:
-                    if  com1.tx.getStatus() != 0:
-                        txSize = com1.tx.getStatus()  
-                        print(f'Pacote {cont+1} de {n_packages} enviado')
-                        break
-
-                # Recebe a resposta do servidor de que recebeu o pacote
-                while True:
-                    if not com1.rx.getIsEmpty():
-                        rxBuffer, nRx = com1.getData(10)
-                        if rxBuffer[0] == 5:
-                            print(f'Confirmação recebida')
-                            com1.rx.clearBuffer()
-                            break
-                        elif rxBuffer[0] == 4:
-                            print(f'Erro no index')
-                            com1.rx.clearBuffer()
-                            com1.disable()
-                            break
-                        elif rxBuffer[0] == 3:
-                            print(f'Erro no tamanho')
-                            com1.rx.clearBuffer()
-                            com1.disable()
-                            break
-                        elif rxBuffer[0] == 6:
-                            print(f'Erro no EOP')
-                            com1.rx.clearBuffer()
-                            com1.disable()
-                            break
-                        elif rxBuffer[0] == 7:
-                            print(f'Pacote enviado com sucesso')
-                            com1.rx.clearBuffer()
-                            com1.disable()
-                            break
-            else:
-                cont = 1
+                                com1.sendData(np.asarray(pacote_imagem))
 
     except Exception as erro:
         print("ops! :-\\")
