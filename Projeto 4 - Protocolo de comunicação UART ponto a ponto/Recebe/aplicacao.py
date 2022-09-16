@@ -12,6 +12,12 @@ from enlace import *
 import time
 import numpy as np
 
+serialName = "/dev/cu.usbmodem141101"                  # Windows(variacao de)
+
+ImageW = './img/RecebidaCopia.png'
+
+
+
 # -----------------------------------------------------------------------------------------------------------------------------------
 # Definindo funções necessárias
 # -----------------------------------------------------------------------------------------------------------------------------------
@@ -63,3 +69,122 @@ def createPackage(tipo, sizePayload, id_arquivo, index, nPackages, h6, h7, paylo
     package += createEOP()
 
     return package
+
+def main():
+    try:
+        img = bytearray()
+        #declaramos um objeto do tipo enlace com o nome "com". Essa é a camada inferior à aplicação. Observe que um parametro
+        #para declarar esse objeto é o nome da porta.
+        com1 = enlace(serialName)
+        com1.enable()
+
+
+        # -----------------------------------------------------------------------------------------------------------------------------------
+        # Fazendo o HANDHSAKE
+        # -----------------------------------------------------------------------------------------------------------------------------------
+        print("Esperando sinal de HANDSHAKE")
+        print("")
+        
+        ocioso = True
+        esperando = True
+        cont = 0
+        n_pacotes = 1000000
+        
+        while ocioso:
+
+            if not com1.rx.getIsEmpty():
+                rxBuffer, nRx = com1.getData(10)
+                if rxBuffer[0] ==1:
+                    print("Recebido sinal de HANDSHAKE")
+                    print("")
+                    
+                    ocioso = False
+            time.sleep(1)
+        
+        # -----------------------------------------------------------------------------------------------------------------------------------
+        # Enviando resposta do HANDSHAKE
+        # -----------------------------------------------------------------------------------------------------------------------------------
+        print("Enviando resposta do HANDSHAKE")
+        print("")
+        com1.sendData(createPackage("handhake_resposta", 0, 1, 0,0, None, 0 , b''))
+        cont=1
+        
+        while cont<= n_pacotes:
+            timer1 = time.time()
+            timer2 = time.time()
+            esperando = True
+            while esperando:
+                if not com1.rx.getIsEmpty():
+                    rxBuffer, nRx = com1.getData(10)
+                    n_pacotes = rxBuffer[3]
+                    tipo = rxBuffer[0]
+                    index = rxBuffer[4]
+                    tamanho = rxBuffer[5]
+                    ultimo_sucesso = rxBuffer[6]
+
+
+
+                    if tipo == 3:
+                        
+                        rxBuffer, nRx, = com1.getData(tamanho)
+                        payload = rxBuffer
+                        rxBuffer, nRx = com1.getData(4)
+                        if len(payload) == tamanho and rxBuffer == b'\xAA\xBB\xCC\xDD':
+                            print("Recebido pacote de dados")
+                            print("")
+                            img += payload
+                            com1.sendData(createPackage("dados_resposta", 0, 1, index, n_pacotes, None, index, b''))
+                            print("Enviando resposta de pacote de dados")
+                            print("")
+                            esperando = False
+                            cont += 1
+                        else:
+                            print("Erro no pacote de dados")
+                            print("")
+                            com1.sendData(createPackage("erro", 0, 1, index, n_pacotes, index, index-1, b''))
+                            print("Enviando resposta de erro")
+                            print("")
+                            esperando = False
+                    else:
+                        time.sleep(1)
+                        if time.time() -timer2 >20:
+                            ocioso = True
+                            com1.sendData(createPackage("timeout", 0, 1, index, n_pacotes, None, index-1, b''))
+                            esperando = False
+                            print(">:-(")
+                            com1.disable()
+                        else:
+                            if time.time() - timer1>2:
+                                #envia mensagem t4???
+                                timer1 = time.time()
+                            else:
+                                esperando = True
+        
+        f = open(ImageW, 'wb')
+        f.write(img)
+        f.close()
+        com1.disable()  
+
+
+# -----------------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------------
+
+ # -----------------------------------------------------------------------------------------------------------------------------------
+
+ # -----------------------------------------------------------------------------------------------------------------------------------
+
+ # -----------------------------------------------------------------------------------------------------------------------------------
+
+                        
+
+
+
+    except Exception as erro:
+        print("ops! :-\\")
+        print(erro)
+        com1.disable()
+        
+
+    #so roda o main quando for executado do terminal ... se for chamado dentro de outro modulo nao roda
+if __name__ == "__main__":
+    main()
