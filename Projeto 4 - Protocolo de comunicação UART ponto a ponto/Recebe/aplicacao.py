@@ -12,7 +12,7 @@ from enlace import *
 import time
 import numpy as np
 
-serialName = "/dev/cu.usbmodem141101"                  # Windows(variacao de)
+serialName = "COM4"                  # Windows(variacao de)
 
 ImageW = './img/RecebidaCopia.png'
 
