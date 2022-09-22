@@ -1,0 +1,6 @@
+[2022-09-22 - 20:29:08] Iniciando comunicacao HANDSHAKE
+[2022-09-22 - 20:29:08] Enviou Handshake T1 / 14.0 bytes
+[2022-09-22 - 20:29:15] Tempo de espera de Handshake esgotado (5 segundos)
+[2022-09-22 - 20:29:15] Enviou Handshake T1 / 14.0 bytes
+[2022-09-22 - 20:29:20] Tempo de espera de Handshake esgotado (5 segundos)
+[2022-09-22 - 20:29:20] Comunicação encerrada

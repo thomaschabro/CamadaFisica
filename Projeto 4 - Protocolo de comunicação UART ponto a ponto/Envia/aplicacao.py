@@ -8,10 +8,10 @@
 # Importando bibiotecas
 
 from operator import truediv
-import sys 
 from enlace import *
 import time
 import numpy as np
+from datetime import date
 
 # -----------------------------------------------------------------------------------------------------------------------------------
 # Definindo funções necessárias
@@ -67,10 +67,16 @@ serialName = "COM3"           # Windows(variacao de)
 imagem     = "./img/imagem.png"   # Imagem 
 
 
+# -----------------------------------------------------------------------------------------------------------------------------------
+# Criando arquivo de texto para escrever o log
+# -----------------------------------------------------------------------------------------------------------------------------------
+
+
 def main():
     try:
         inicia = False
         cont = 0
+        log_txt = ''
         #declaramos um objeto do tipo enlace com o nome "com". Essa é a camada inferior à aplicação. Observe que um parametro
         #para declarar esse objeto é o nome da porta.
         com1 = enlace(serialName)
@@ -81,6 +87,8 @@ def main():
         # -----------------------------------------------------------------------------------------------------------------------------------
         print ("Iniciando comunicação HANDSHAKE")
         print ("")
+        log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Iniciando comunicacao HANDSHAKE\n"
+
         payload = bytearray()
         handshake = createPackage("handshake_envio",0,0,0, None,0, payload)
         
@@ -97,6 +105,7 @@ def main():
                             txSize = com1.tx.getStatus()  
                             print('Enviou um pacote como Handshake')
                             print("")
+                            log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Enviou Handshake T1 / " + str(txSize) + " bytes\n" 
                             break
 
                 if not com1.rx.getIsEmpty():
@@ -108,6 +117,7 @@ def main():
                         print ("Handshake recebido")
                         print ("")
                         print (" ------------------------- ")
+                        log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Recebeu resposta de Hanshake T2 / 14 bytes\n"
 
                         inicia = True
                         cont   = 1
@@ -121,6 +131,7 @@ def main():
                 resposta = input ("Deseja tentar novamente? (s/n) ")
                 print ("")
                 print (" ------------------------- ")
+                log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Tempo de espera de Handshake esgotado (5 segundos)\n"
 
                 if resposta == "s":
                     start = time.time()
@@ -128,6 +139,7 @@ def main():
 
                 if resposta == "n":
                     print ("Comunicação encerrada")
+                    log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Comunicacao encerrada"
                     com1.disable()
                     break
 
@@ -164,6 +176,7 @@ def main():
                 payload = bytearray()
                 payload = read_image[(cont-1)*114:(cont)*114]
                 pacote_imagem = createPackage("dados", len(payload), (cont), n_packages, 0, 0, payload)
+                log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Enviou pacote T3 " + f'{cont}/{n_packages}' + f'/ {len(pacote_imagem)} bytes'
                 timer1 = time.time()
                 timer2 = time.time()
                 # Envia o pacotes para o servidor
@@ -182,17 +195,19 @@ def main():
                             #recebeu mensagem t4
                             print (" - Pacote enviado com sucesso!")
                             print ("")
+                            log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Recebeu resposta T4 / 14 bytes\n"
                             rxBuffer, nRx = com1.getData(4)
                             cont += 1
                             nao_tem_t4 = False    
 
                         if rxBuffer[0] == 6:
                             print ("Recebeu Erro no pacote")
+                            log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Recebeu pacote de erro T6 / 14 bytes\n"
                             #recebeu mensagem t6
                             timer1 = time.time()
                             timer2 = time.time()
                             
-                            # "Corrigir contagem ?"
+                            # Corrige contagem de pacotes para reiniciar
                             cont = rxBuffer[6]
                             nao_tem_t4 = False
                     else:
@@ -203,6 +218,7 @@ def main():
 
                         if time.time() - timer2 > 20:
                             pacote_timeout = createPackage("timeout", 0, 0, 0, 0, 0, bytearray())
+                            log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Enviou pacote de timeout T5 / 14 bytes"
                             com1.sendData(np.asarray(pacote_timeout))
                             time.sleep(0.05)
                             print('TIMEOUT')
@@ -216,11 +232,15 @@ def main():
                 print ("Comunicação encerrada")
                 com1.disable()
                 inicia = False
-
+            
     except Exception as erro:
         print("ops! :-\\")
         print(erro)
         com1.disable()
-    
+
+    with open("log.txt", "w") as log:
+        log.write(log_txt)
+        log.close()
+
 if __name__ == "__main__":
     main()
