@@ -69,7 +69,9 @@ class RX(object):
 
     def getNData(self, size):
         while(self.getBufferLen() < size):
-            time.sleep(0.05)                 
+            # print("esperando {} bytes".format(size))
+            # print("disponiveis {} bytes".format(self.getBufferLen()))
+            time.sleep(0.5)                 
         return(self.getBuffer(size))
 
 

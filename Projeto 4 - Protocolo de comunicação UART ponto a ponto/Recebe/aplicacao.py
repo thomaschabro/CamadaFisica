@@ -12,7 +12,7 @@ from enlace import *
 import time
 import numpy as np
 
-serialName = "/dev/cu.usbmodem141101"                  # Windows(variacao de)
+serialName = "/dev/cu.usbmodem142101"                  # Windows(variacao de)
 
 ImageW = './img/RecebidaCopia.png'
 
@@ -21,16 +21,16 @@ ImageW = './img/RecebidaCopia.png'
 # -----------------------------------------------------------------------------------------------------------------------------------
 # Definindo funções necessárias
 # -----------------------------------------------------------------------------------------------------------------------------------
-def createHeader(tipo, sizePayload, id_arquivo, index, nPackages, h6, h7):
+def createHeader(tipo, h5, index, nPackages, h6, h7):
     header = bytearray()
-    if tipo == "handhake_envio":
+    if tipo == "handshake_envio":
         header += b'\x01\x00\x00'
-        h5 = id_arquivo.to_bytes(1, byteorder='little')
-    elif tipo == "handhake_resposta":
+    
+    elif tipo == "handshake_resposta":
         header += b'\x02\x00\x00'
     elif tipo == "dados":
         header += b'\x03\x00\x00'
-        h5 = sizePayload.to_bytes(1, byteorder='little')
+
     elif tipo == "dados_resposta":
         header += b'\x04\x00\x00'
     elif tipo == "timeout":
@@ -38,12 +38,11 @@ def createHeader(tipo, sizePayload, id_arquivo, index, nPackages, h6, h7):
     elif tipo == "erro":
         header += b'\x06\x00\x00'
 
-    if h5 == None:
-        h5 = b'\x00'
+    
 
     header += nPackages.to_bytes(1, byteorder='little')
     header += index.to_bytes(1, byteorder='little')
-    header += h5
+    header += h5.to_bytes(1, byteorder='little')
     
     # Definindo o h6
     if h6 == None:
@@ -62,9 +61,9 @@ def createEOP():
     eop += b'\xAA\xBB\xCC\xDD'
     return eop
 
-def createPackage(tipo, sizePayload, id_arquivo, index, nPackages, h6, h7, payload):
+def createPackage(tipo, h5, index, nPackages, h6, h7, payload):
     package = bytearray()
-    package += createHeader(tipo, sizePayload, id_arquivo, index, nPackages, h6, h7)
+    package += createHeader(tipo, h5, index, nPackages, h6, h7)
     package += payload
     package += createEOP()
 
@@ -91,13 +90,16 @@ def main():
         n_pacotes = 1000000
         
         while ocioso:
-
+          
             if not com1.rx.getIsEmpty():
+                
                 rxBuffer, nRx = com1.getData(10)
+          
                 if rxBuffer[0] ==1:
                     print("Recebido sinal de HANDSHAKE")
                     print("")
-                    
+                    #pega eop
+                    rxBuffer, nRx = com1.getData(4)
                     ocioso = False
             time.sleep(1)
         
@@ -106,34 +108,49 @@ def main():
         # -----------------------------------------------------------------------------------------------------------------------------------
         print("Enviando resposta do HANDSHAKE")
         print("")
-        com1.sendData(createPackage("handhake_resposta", 0, 1, 0,0, None, 0 , b''))
+
+        com1.sendData(createPackage("handshake_resposta", 0, 0, 0, None, 0, b''))
         cont=1
+        com1.rx.clearBuffer()
         
+        
+        #5 segundos parado print de 1 em 1 segundo
+        
+        print(com1.rx.getIsEmpty())
+        #rxBuffer, nRx = com1.getData(40)
         while cont<= n_pacotes:
             timer1 = time.time()
             timer2 = time.time()
             esperando = True
             while esperando:
+            
+                
                 if not com1.rx.getIsEmpty():
+                    
                     rxBuffer, nRx = com1.getData(10)
                     n_pacotes = rxBuffer[3]
                     tipo = rxBuffer[0]
                     index = rxBuffer[4]
                     tamanho = rxBuffer[5]
                     ultimo_sucesso = rxBuffer[6]
-
-
-
+                    
+                    print("o index é", index)
+                    print("a cont é", cont)
+                    
                     if tipo == 3:
+                       
                         
                         rxBuffer, nRx, = com1.getData(tamanho)
                         payload = rxBuffer
+                       
                         rxBuffer, nRx = com1.getData(4)
-                        if len(payload) == tamanho and rxBuffer == b'\xAA\xBB\xCC\xDD':
+                        if len(payload) == tamanho and rxBuffer == b'\xaa\xbb\xcc\xdd' and index == cont:
                             print("Recebido pacote de dados")
                             print("")
+                            print(payload)
                             img += payload
-                            com1.sendData(createPackage("dados_resposta", 0, 1, index, n_pacotes, None, index, b''))
+
+                            com1.sendData(createPackage("dados_resposta", 0, index, 0, None, index-1, b'') )
                             print("Enviando resposta de pacote de dados")
                             print("")
                             esperando = False
@@ -141,15 +158,17 @@ def main():
                         else:
                             print("Erro no pacote de dados")
                             print("")
-                            com1.sendData(createPackage("erro", 0, 1, index, n_pacotes, index, index-1, b''))
+                            com1.sendData(createPackage("erro", 0, index, 0, cont, index-1, b''))
                             print("Enviando resposta de erro")
                             print("")
                             esperando = False
+                            
                     else:
+                        print ("entrou no else")
                         time.sleep(1)
                         if time.time() -timer2 >20:
                             ocioso = True
-                            com1.sendData(createPackage("timeout", 0, 1, index, n_pacotes, None, index-1, b''))
+                            com1.sendData(createPackage("timeout",0 , 0, 0, None, 0, b'')) 
                             esperando = False
                             print(">:-(")
                             com1.disable()
