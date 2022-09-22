@@ -16,16 +16,14 @@ import numpy as np
 # -----------------------------------------------------------------------------------------------------------------------------------
 # Definindo funções necessárias
 # -----------------------------------------------------------------------------------------------------------------------------------
-def createHeader(tipo, sizePayload, id_arquivo, index, nPackages, h6, h7):
+def createHeader(tipo, h5, index, nPackages, h6, h7):
     header = bytearray()
-    if tipo == "handhake_envio":
+    if tipo == "handshake_envio":
         header += b'\x01\x00\x00'
-        h5 = id_arquivo.to_bytes(1, byteorder='little')
-    elif tipo == "handhake_resposta":
+    elif tipo == "handshake_resposta":
         header += b'\x02\x00\x00'
     elif tipo == "dados":
         header += b'\x03\x00\x00'
-        h5 = sizePayload.to_bytes(1, byteorder='little')
     elif tipo == "dados_resposta":
         header += b'\x04\x00\x00'
     elif tipo == "timeout":
@@ -37,10 +35,7 @@ def createHeader(tipo, sizePayload, id_arquivo, index, nPackages, h6, h7):
     header += index.to_bytes(1, byteorder='little')
 
     # ----- Definindo o h5 -----
-    try:
-        header += h5
-    except:
-        header += b'\x00' 
+    header += h5.to_bytes(1, byteorder='little')
     
     # ----- Definindo o h6 -----
     if h6 == None:
@@ -59,9 +54,9 @@ def createEOP():
     eop += b'\xAA\xBB\xCC\xDD'
     return eop
 
-def createPackage(tipo, sizePayload, id_arquivo, index, nPackages, h6, h7, payload):
+def createPackage(tipo, h5, index, nPackages, h6, h7, payload):
     package = bytearray()
-    package += createHeader(tipo, sizePayload, id_arquivo, index, nPackages, h6, h7)
+    package += createHeader(tipo, h5, index, nPackages, h6, h7)
     package += payload
     package += createEOP()
 
@@ -69,7 +64,7 @@ def createPackage(tipo, sizePayload, id_arquivo, index, nPackages, h6, h7, paylo
 
 
 serialName = "COM3"           # Windows(variacao de)
-imagem = "./img/imagem.png"   # Imagem 
+imagem     = "./img/imagem.png"   # Imagem 
 
 
 def main():
@@ -87,27 +82,27 @@ def main():
         print ("Iniciando comunicação HANDSHAKE")
         print ("")
         payload = bytearray()
-        handshake = createPackage("handshake_envio", 0,0,0,0,0,0, payload)
+        handshake = createPackage("handshake_envio",0,0,0, None,0, payload)
         
         enviou_mensagem = False
         start = time.time()
         while True:
             dif = time.time() - start
             if dif < 5:
-                com1.sendData(np.asarray(handshake))
-                while True:
-                    if  com1.tx.getStatus() != 0:
-                        txSize = com1.tx.getStatus()  
-                        if enviou_mensagem == False:
+                if enviou_mensagem == False:
+                    com1.sendData(np.asarray(handshake))
+                    enviou_mensagem = True
+                    while True:
+                        if  com1.tx.getStatus() != 0:
+                            txSize = com1.tx.getStatus()  
                             print('Enviou um pacote como Handshake')
                             print("")
-                            enviou_mensagem = True
-                        break
+                            break
 
                 if not com1.rx.getIsEmpty():
                     print("Recebeu um pacote")
                     rxBuffer, nRx = com1.getData(10)
-                    if rxBuffer[0] == 1:
+                    if rxBuffer[0] == 2:
                         print (" ------------------------- ")
                         print ("")
                         print ("Handshake recebido")
@@ -155,55 +150,72 @@ def main():
         # -----------------------------------------------------------------------------------------------------------------------------------
         # Inicia o envio de arquivos  
         # -----------------------------------------------------------------------------------------------------------------------------------
-        nao_tem_t4 = True
+        
+ 
 
+        print ("Iniciando comunicação")
+        print ("")
         while inicia:  
             if cont <= n_packages:
+                nao_tem_t4 = True
+                print ("Enviando pacote ", cont, " de ", n_packages)
                 com1.rx.clearBuffer()
-                com1.tx.clearBuffer()
+                com1.fisica.flush()
                 payload = bytearray()
-                payload = read_image[cont*114:(cont+1)*114]
-                pacote_imagem = createPackage("info", len(payload), (cont+1), n_packages, payload)
-                print ("")
+                payload = read_image[(cont-1)*114:(cont)*114]
+                pacote_imagem = createPackage("dados", len(payload), (cont), n_packages, 0, 0, payload)
                 timer1 = time.time()
                 timer2 = time.time()
                 # Envia o pacotes para o servidor
                 com1.sendData(np.asarray(pacote_imagem))
+                time.sleep(0.05)
+                print ("Pacote enviado")
                 
 
-
+                
+                print (" - Esperando resposta do servidor")
                 while nao_tem_t4:
+                    
+                    if not com1.rx.getIsEmpty():
+                        rxBuffer, nRx = com1.getData(10)
+                        if rxBuffer[0] == 4:
+                            #recebeu mensagem t4
+                            print (" - Pacote enviado com sucesso!")
+                            print ("")
+                            rxBuffer, nRx = com1.getData(4)
+                            cont += 1
+                            nao_tem_t4 = False    
 
-                    rxBuffer, nRx = com1.getData(10)
-                    if rxBuffer[0] == 4:
-                        #recebeu mensagem t4
-                        rxBuffer, nRx = com1.getData(4)
-                        cont += 1
-                        nao_tem_t4 = False
-
+                        if rxBuffer[0] == 6:
+                            print ("Recebeu Erro no pacote")
+                            #recebeu mensagem t6
+                            timer1 = time.time()
+                            timer2 = time.time()
+                            
+                            # "Corrigir contagem ?"
+                            cont = rxBuffer[6]
+                            nao_tem_t4 = False
                     else:
                         if time.time() - timer1 > 5:
                             com1.sendData(np.asarray(pacote_imagem))
+                            time.sleep(0.05)
                             timer1 = time.time()
 
                         if time.time() - timer2 > 20:
-                            pacote_timeout = createPackage("timeout", 0, 0, 0, 0, 0, 0, bytearray())
+                            pacote_timeout = createPackage("timeout", 0, 0, 0, 0, 0, bytearray())
                             com1.sendData(np.asarray(pacote_timeout))
+                            time.sleep(0.05)
                             print('TIMEOUT')
                             print(">:-(")
                             com1.disable()
                             inicia = False
-
-                        else:
-                            if rxBuffer[0] == 6:
-                                #recebeu mensagem t6
-                                timer1 = time.time()
-                                timer2 = time.time()
-                                
-                                # "Corrigir contagem ?"
-                                cont = rxBuffer[6]
-
-                                com1.sendData(np.asarray(pacote_imagem))
+                            nao_tem_t4 = False
+                            break
+                            
+            else:
+                print ("Comunicação encerrada")
+                com1.disable()
+                inicia = False
 
     except Exception as erro:
         print("ops! :-\\")
