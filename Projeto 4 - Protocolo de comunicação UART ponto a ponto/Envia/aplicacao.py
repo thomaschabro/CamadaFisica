@@ -162,14 +162,14 @@ def main():
         # -----------------------------------------------------------------------------------------------------------------------------------
         # Inicia o envio de arquivos  
         # -----------------------------------------------------------------------------------------------------------------------------------
-        
+
  
 
         print ("Iniciando comunicação")
         print ("")
-        while inicia:  
+        while inicia:     
             if cont <= n_packages:
-                nao_tem_t4 = True
+                nao_tem_t4 = True     
                 print ("Enviando pacote ", cont, " de ", n_packages)
                 com1.rx.clearBuffer()
                 com1.fisica.flush()
@@ -199,6 +199,8 @@ def main():
                             rxBuffer, nRx = com1.getData(4)
                             cont += 1
                             nao_tem_t4 = False    
+
+
 
                         if rxBuffer[0] == 6:
                             print ("Recebeu Erro no pacote")
@@ -240,7 +242,7 @@ def main():
         print(erro)
         com1.disable()
 
-    with open("log.txt", "w") as log:
+    with open("log_client3.txt", "w") as log:
         log.write(log_txt)
         log.close()
 

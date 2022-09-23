@@ -155,7 +155,7 @@ def main():
 
                             com1.sendData(createPackage("dados_resposta", 0, index, 0, None, index-1, b'') )
                             print("Enviando resposta de pacote de dados")
-                            log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Enviou pacote de confirmacao de recebimento T4 / " + f'{tamanho + 14}' + " bytes\n"
+                            log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Enviou pacote de confirmacao de recebimento T4 / " + '14' + " bytes\n"
                             print("")
                             esperando = False
                             cont += 1
@@ -168,10 +168,12 @@ def main():
                             print("")
                             log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + f"Enviou pacote de erro T6 / {len(x)} bytes\n"
                             esperando = False
-                            
+  
+                        
                     else:
-                        time.sleep(1)
+                        print ("Entrou no else")
                         if time.time() -timer2 >20:
+                            print ("Deu 20 segundos")
                             ocioso = True
                             com1.sendData(createPackage("timeout",0 , 0, 0, None, 0, b'')) 
                             log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Enviou pacote de timeout T5 / 14 bytes\n"
@@ -191,7 +193,7 @@ def main():
         f.close()
 
         # Escrevendo log
-        with open('log_client.txt', 'w') as f:
+        with open('log_server3.txt', 'w') as f:
             f.write(log_txt)
             f.close()
 

@@ -1,0 +1,26 @@
+[2022-09-23 - 13:32:10] Esperando sinal de Handshake
+[2022-09-23 - 13:32:12] Recebeu Handshake T1 / 14 bytes
+[2022-09-23 - 13:32:13] Enviou Handshake T2 / 14 bytes
+[2022-09-23 - 13:32:14] Recebeu pacote de dados T3 1/10 / 128 bytes
+[2022-09-23 - 13:32:14] Enviou pacote de erro T6 / 14 bytes
+[2022-09-23 - 13:32:15] Recebeu pacote de dados T3 1/10 / 128 bytes
+[2022-09-23 - 13:32:15] Enviou pacote de confirmacao de recebimento T4 / 14 bytes
+[2022-09-23 - 13:32:16] Recebeu pacote de dados T3 2/10 / 128 bytes
+[2022-09-23 - 13:32:16] Enviou pacote de confirmacao de recebimento T4 / 14 bytes
+[2022-09-23 - 13:32:17] Recebeu pacote de dados T3 3/10 / 128 bytes
+[2022-09-23 - 13:32:17] Enviou pacote de confirmacao de recebimento T4 / 14 bytes
+[2022-09-23 - 13:32:18] Recebeu pacote de dados T3 4/10 / 128 bytes
+[2022-09-23 - 13:32:18] Enviou pacote de confirmacao de recebimento T4 / 14 bytes
+[2022-09-23 - 13:32:19] Recebeu pacote de dados T3 5/10 / 128 bytes
+[2022-09-23 - 13:32:19] Enviou pacote de confirmacao de recebimento T4 / 14 bytes
+[2022-09-23 - 13:32:20] Recebeu pacote de dados T3 6/10 / 128 bytes
+[2022-09-23 - 13:32:20] Enviou pacote de confirmacao de recebimento T4 / 14 bytes
+[2022-09-23 - 13:32:21] Recebeu pacote de dados T3 7/10 / 128 bytes
+[2022-09-23 - 13:32:21] Enviou pacote de confirmacao de recebimento T4 / 14 bytes
+[2022-09-23 - 13:32:21] Recebeu pacote de dados T3 8/10 / 128 bytes
+[2022-09-23 - 13:32:22] Enviou pacote de confirmacao de recebimento T4 / 14 bytes
+[2022-09-23 - 13:32:22] Recebeu pacote de dados T3 9/10 / 128 bytes
+[2022-09-23 - 13:32:23] Enviou pacote de confirmacao de recebimento T4 / 14 bytes
+[2022-09-23 - 13:32:23] Recebeu pacote de dados T3 10/10 / 31 bytes
+[2022-09-23 - 13:32:23] Enviou pacote de confirmacao de recebimento T4 / 14 bytes
+[2022-09-23 - 13:32:26] Imagem recebida com sucesso
