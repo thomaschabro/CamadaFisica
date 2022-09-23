@@ -11,8 +11,9 @@ import sys
 from enlace import *
 import time
 import numpy as np
+from datetime import date
 
-serialName = "/dev/cu.usbmodem142101"                  # Windows(variacao de)
+serialName = "COM4"                  # Windows(variacao de)
 
 ImageW = './img/RecebidaCopia.png'
 
@@ -76,18 +77,20 @@ def main():
         #para declarar esse objeto é o nome da porta.
         com1 = enlace(serialName)
         com1.enable()
-
+        log_txt = ''
 
         # -----------------------------------------------------------------------------------------------------------------------------------
         # Fazendo o HANDHSAKE
         # -----------------------------------------------------------------------------------------------------------------------------------
         print("Esperando sinal de HANDSHAKE")
+        log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Esperando sinal de Handshake\n"
         print("")
         
         ocioso = True
         esperando = True
         cont = 0
         n_pacotes = 1000000
+
         
         while ocioso:
           
@@ -97,6 +100,7 @@ def main():
           
                 if rxBuffer[0] ==1:
                     print("Recebido sinal de HANDSHAKE")
+                    log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Recebeu Handshake T1 / 14 bytes\n"
                     print("")
                     #pega eop
                     rxBuffer, nRx = com1.getData(4)
@@ -112,6 +116,7 @@ def main():
         com1.sendData(createPackage("handshake_resposta", 0, 0, 0, None, 0, b''))
         cont=1
         com1.rx.clearBuffer()
+        log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Enviou Handshake T2 / 14 bytes\n"
         
         
         #5 segundos parado print de 1 em 1 segundo
@@ -134,9 +139,7 @@ def main():
                     tamanho = rxBuffer[5]
                     ultimo_sucesso = rxBuffer[6]
                     
-                    print("o index é", index)
-                    print("a cont é", cont)
-                    
+                
                     if tipo == 3:
                        
                         
@@ -147,28 +150,31 @@ def main():
                         if len(payload) == tamanho and rxBuffer == b'\xaa\xbb\xcc\xdd' and index == cont:
                             print("Recebido pacote de dados")
                             print("")
-                            print(payload)
+                            log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Recebeu pacote de dados T3 " + f'{index}/{n_pacotes} / ' + f'{tamanho + 14}' + " bytes\n"
                             img += payload
 
                             com1.sendData(createPackage("dados_resposta", 0, index, 0, None, index-1, b'') )
                             print("Enviando resposta de pacote de dados")
+                            log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Enviou pacote de confirmacao de recebimento T4 / " + f'{tamanho + 14}' + " bytes\n"
                             print("")
                             esperando = False
                             cont += 1
                         else:
                             print("Erro no pacote de dados")
                             print("")
-                            com1.sendData(createPackage("erro", 0, index, 0, cont, index-1, b''))
+                            x = createPackage("erro", 0, index, 0, cont, index-1, b'')
+                            com1.sendData(x)
                             print("Enviando resposta de erro")
                             print("")
+                            log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + f"Enviou pacote de erro T6 / {len(x)} bytes\n"
                             esperando = False
                             
                     else:
-                        print ("entrou no else")
                         time.sleep(1)
                         if time.time() -timer2 >20:
                             ocioso = True
                             com1.sendData(createPackage("timeout",0 , 0, 0, None, 0, b'')) 
+                            log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Enviou pacote de timeout T5 / 14 bytes\n"
                             esperando = False
                             print(">:-(")
                             com1.disable()
@@ -181,7 +187,14 @@ def main():
         
         f = open(ImageW, 'wb')
         f.write(img)
+        log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Imagem recebida com sucesso\n"
         f.close()
+
+        # Escrevendo log
+        with open('log_client.txt', 'w') as f:
+            f.write(log_txt)
+            f.close()
+
         com1.disable()  
 
 
@@ -199,6 +212,7 @@ def main():
 
 
     except Exception as erro:
+        log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Erro: " + str(erro) + "\n"
         print("ops! :-\\")
         print(erro)
         com1.disable()

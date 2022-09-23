@@ -176,7 +176,7 @@ def main():
                 payload = bytearray()
                 payload = read_image[(cont-1)*114:(cont)*114]
                 pacote_imagem = createPackage("dados", len(payload), (cont), n_packages, 0, 0, payload)
-                log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Enviou pacote T3 " + f'{cont}/{n_packages}' + f'/ {len(pacote_imagem)} bytes'
+                log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Enviou pacote T3 " + f'{cont}/{n_packages}' + f'/ {len(pacote_imagem)} bytes\n'
                 timer1 = time.time()
                 timer2 = time.time()
                 # Envia o pacotes para o servidor
@@ -230,10 +230,12 @@ def main():
                             
             else:
                 print ("Comunicação encerrada")
+                log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Comunicacao encerrada"
                 com1.disable()
                 inicia = False
             
     except Exception as erro:
+        log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Erro na comunicacao\n"
         print("ops! :-\\")
         print(erro)
         com1.disable()
