@@ -202,8 +202,9 @@ def main():
                         com1.sendData(np.asarray(recebeu_pacote))
                         print ("Enviando pacote de resposta ", index)
                         ultimo_index = index
-                        # if ultimo_index == 3:
-                        #     ultimo_index = 2
+                        ja_erro = False:
+                        if ultimo_index == 3:
+                            ultimo_index = 2
 
         
 

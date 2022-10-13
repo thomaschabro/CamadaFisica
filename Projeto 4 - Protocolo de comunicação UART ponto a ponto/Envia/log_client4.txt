@@ -1,0 +1,24 @@
+[2022-09-23 - 13:13:34] Iniciando comunicacao HANDSHAKE
+[2022-09-23 - 13:13:34] Enviou Handshake T1 / 14.0 bytes
+[2022-09-23 - 13:13:36] Recebeu resposta de Hanshake T2 / 14 bytes
+[2022-09-23 - 13:13:36] Enviou pacote T3 1/10/ 128 bytes
+[2022-09-23 - 13:13:37] Recebeu resposta T4 / 14 bytes
+[2022-09-23 - 13:13:37] Enviou pacote T3 2/10/ 128 bytes
+[2022-09-23 - 13:13:38] Recebeu resposta T4 / 14 bytes
+[2022-09-23 - 13:13:38] Enviou pacote T3 3/10/ 128 bytes
+[2022-09-23 - 13:13:39] Recebeu resposta T4 / 14 bytes
+[2022-09-23 - 13:13:39] Enviou pacote T3 4/10/ 128 bytes
+[2022-09-23 - 13:13:40] Recebeu resposta T4 / 14 bytes
+[2022-09-23 - 13:13:40] Enviou pacote T3 5/10/ 128 bytes
+[2022-09-23 - 13:13:46] Recebeu pacote de erro T6 / 14 bytes
+[2022-09-23 - 13:13:46] Enviou pacote T3 6/10/ 128 bytes
+[2022-09-23 - 13:13:47] Recebeu resposta T4 / 14 bytes
+[2022-09-23 - 13:13:47] Enviou pacote T3 7/10/ 128 bytes
+[2022-09-23 - 13:13:48] Recebeu resposta T4 / 14 bytes
+[2022-09-23 - 13:13:48] Enviou pacote T3 8/10/ 128 bytes
+[2022-09-23 - 13:13:49] Recebeu resposta T4 / 14 bytes
+[2022-09-23 - 13:13:49] Enviou pacote T3 9/10/ 128 bytes
+[2022-09-23 - 13:13:50] Recebeu resposta T4 / 14 bytes
+[2022-09-23 - 13:13:50] Enviou pacote T3 10/10/ 31 bytes
+[2022-09-23 - 13:13:51] Recebeu resposta T4 / 14 bytes
+[2022-09-23 - 13:13:51] Comunicacao encerrada
