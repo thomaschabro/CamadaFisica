@@ -12,6 +12,7 @@ from enlace import *
 import time
 import numpy as np
 from datetime import date
+from crc import CrcCalculator, Crc16
 
 serialName = "COM4"                  # Windows(variacao de)
 
@@ -71,6 +72,8 @@ def createPackage(tipo, h5, index, nPackages, h6, h7, payload):
     return package
 
 def main():
+    # INICIANDO CRC
+    crc = CrcCalculator(Crc16.CCITT)
     try:
         img = bytearray()
         #declaramos um objeto do tipo enlace com o nome "com". Essa é a camada inferior à aplicação. Observe que um parametro
@@ -138,7 +141,7 @@ def main():
                     index = rxBuffer[4]
                     tamanho = rxBuffer[5]
                     ultimo_sucesso = rxBuffer[6]
-                    
+                    expected = crc.crcexpected(rxBuffer[8:9])
                 
                     if tipo == 3:
                        
@@ -147,7 +150,7 @@ def main():
                         payload = rxBuffer
                        
                         rxBuffer, nRx = com1.getData(4)
-                        if len(payload) == tamanho and rxBuffer == b'\xaa\xbb\xcc\xdd' and index == cont:
+                        if len(payload) == tamanho and rxBuffer == b'\xaa\xbb\xcc\xdd' and index == cont and payload == expected:
                             print("Recebido pacote de dados")
                             print("")
                             log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Recebeu pacote de dados T3 " + f'{index}/{n_pacotes} / ' + f'{tamanho + 14}' + " bytes\n"
