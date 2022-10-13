@@ -12,11 +12,12 @@ from enlace import *
 import time
 import numpy as np
 from datetime import date
+from crc import CrcCalculator, Crc16
 
 # -----------------------------------------------------------------------------------------------------------------------------------
 # Definindo funções necessárias
 # -----------------------------------------------------------------------------------------------------------------------------------
-def createHeader(tipo, h5, index, nPackages, h6, h7):
+def createHeader(tipo, h5, index, nPackages, h6, h7, crc):
     header = bytearray()
     if tipo == "handshake_envio":
         header += b'\x01\x00\x00'
@@ -46,7 +47,8 @@ def createHeader(tipo, h5, index, nPackages, h6, h7):
     # ----- Definindo o h7 ------
     header += h7.to_bytes(1, byteorder='little')
 
-    header += b'\x00\x00'
+    crcbyte = crc.to_bytes(2, byteorder='little')
+    header += crcbyte
     return header
 
 def createEOP():
@@ -54,16 +56,16 @@ def createEOP():
     eop += b'\xAA\xBB\xCC\xDD'
     return eop
 
-def createPackage(tipo, h5, index, nPackages, h6, h7, payload):
+def createPackage(tipo, h5, index, nPackages, h6, h7, payload, crc):
     package = bytearray()
-    package += createHeader(tipo, h5, index, nPackages, h6, h7)
+    package += createHeader(tipo, h5, index, nPackages, h6, h7, crc)
     package += payload
     package += createEOP()
 
     return package
 
 
-serialName = "COM3"           # Windows(variacao de)
+serialName = "./dev/cu.usbmodem142101"           # Mac(variacao de)
 imagem     = "./img/imagem.png"   # Imagem 
 
 
@@ -73,7 +75,10 @@ imagem     = "./img/imagem.png"   # Imagem
 
 
 def main():
+
+    
     try:
+        crccalc = CrcCalculator(Crc16.CCITT)
         inicia = False
         cont = 0
         log_txt = ''
@@ -90,7 +95,8 @@ def main():
         log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Iniciando comunicacao HANDSHAKE\n"
 
         payload = bytearray()
-        handshake = createPackage("handshake_envio",0,0,0, None,0, payload)
+        crc = b'\x00\x00'
+        handshake = createPackage("handshake_envio",0,0,0, None,0, payload, crc)
         
         enviou_mensagem = False
         start = time.time()
@@ -175,7 +181,8 @@ def main():
                 com1.fisica.flush()
                 payload = bytearray()
                 payload = read_image[(cont-1)*114:(cont)*114]
-                pacote_imagem = createPackage("dados", len(payload), (cont), n_packages, 0, 0, payload)
+                crc = crccalc.calculate_checksum(payload)
+                pacote_imagem = createPackage("dados", len(payload), (cont), n_packages, 0, 0, payload, crc)
                 log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Enviou pacote T3 " + f'{cont}/{n_packages}' + f'/ {len(pacote_imagem)} bytes\n'
                 timer1 = time.time()
                 timer2 = time.time()
@@ -217,7 +224,7 @@ def main():
                             timer1 = time.time()
 
                         if time.time() - timer2 > 20:
-                            pacote_timeout = createPackage("timeout", 0, 0, 0, 0, 0, bytearray())
+                            pacote_timeout = createPackage("timeout", 0, 0, 0, 0, 0, bytearray(), b'/x00/x00')
                             log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Enviou pacote de timeout T5 / 14 bytes"
                             com1.sendData(np.asarray(pacote_timeout))
                             time.sleep(0.05)
