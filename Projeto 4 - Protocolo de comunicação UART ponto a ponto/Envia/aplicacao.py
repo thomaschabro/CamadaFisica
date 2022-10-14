@@ -13,6 +13,7 @@ import time
 import numpy as np
 from datetime import date
 
+
 # -----------------------------------------------------------------------------------------------------------------------------------
 # Definindo funções necessárias
 # -----------------------------------------------------------------------------------------------------------------------------------
@@ -175,7 +176,7 @@ def main():
                 com1.fisica.flush()
                 payload = bytearray()
                 payload = read_image[(cont-1)*114:(cont)*114]
-                pacote_imagem = createPackage("dados", len(payload), (cont), n_packages, 0, 0, payload)
+                pacote_imagem = createPackage("dados", len(payload), (cont), n_packages, 0, 0, payload, )
                 log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Enviou pacote T3 " + f'{cont}/{n_packages}' + f'/ {len(pacote_imagem)} bytes\n'
                 timer1 = time.time()
                 timer2 = time.time()

@@ -7,7 +7,9 @@
 
 # Importando bibiotecas
 
-import sys 
+import sys
+
+from charset_normalizer import from_bytes 
 from enlace import *
 import time
 import numpy as np
@@ -121,11 +123,7 @@ def main():
         com1.rx.clearBuffer()
         log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Enviou Handshake T2 / 14 bytes\n"
         
-        
-        #5 segundos parado print de 1 em 1 segundo
-        
-        print(com1.rx.getIsEmpty())
-        #rxBuffer, nRx = com1.getData(40)
+         #rxBuffer, nRx = com1.getData(40)
         while cont<= n_pacotes:
             timer1 = time.time()
             timer2 = time.time()
@@ -140,17 +138,18 @@ def main():
                     tipo = rxBuffer[0]
                     index = rxBuffer[4]
                     tamanho = rxBuffer[5]
-                    ultimo_sucesso = rxBuffer[6]
-                    expected = crc.crcexpected(rxBuffer[8:9])
+
+                    expected = int.from_bytes(rxBuffer[8:10], byteorder='little')
+                   
                 
                     if tipo == 3:
-                       
+                        print ("Recebido pacote de dados")
                         
                         rxBuffer, nRx, = com1.getData(tamanho)
                         payload = rxBuffer
                        
                         rxBuffer, nRx = com1.getData(4)
-                        if len(payload) == tamanho and rxBuffer == b'\xaa\xbb\xcc\xdd' and index == cont and payload == expected:
+                        if len(payload) == tamanho and rxBuffer == b'\xaa\xbb\xcc\xdd' and index == cont and crc.calculate_checksum(payload) == expected:
                             print("Recebido pacote de dados")
                             print("")
                             log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Recebeu pacote de dados T3 " + f'{index}/{n_pacotes} / ' + f'{tamanho + 14}' + " bytes\n"

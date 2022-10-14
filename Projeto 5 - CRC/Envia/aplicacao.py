@@ -65,7 +65,7 @@ def createPackage(tipo, h5, index, nPackages, h6, h7, payload, crc):
     return package
 
 
-serialName = ".dev/cu.usbmodem142101"           # Mac(variacao de)
+serialName = "COM3"           # Mac(variacao de)
 imagem     = "./img/imagem.png"   # Imagem 
 
 
@@ -97,7 +97,7 @@ def main():
 
         payload = bytearray()
         crc = b'\x00\x00'
-        handshake = createPackage("handshake_envio",0,0,0, None,0, payload, crc)
+        handshake = createPackage("handshake_envio",0,0,0, None,0, payload, 0)
         
         enviou_mensagem = False
         start = time.time()
@@ -225,7 +225,7 @@ def main():
                             timer1 = time.time()
 
                         if time.time() - timer2 > 20:
-                            pacote_timeout = createPackage("timeout", 0, 0, 0, 0, 0, bytearray(), b'/x00/x00')
+                            pacote_timeout = createPackage("timeout", 0, 0, 0, 0, 0, bytearray(), 0)
                             log_txt += '[' + f'{date.today()} - {time.strftime("%H:%M:%S")}' + '] ' + "Enviou pacote de timeout T5 / 14 bytes"
                             com1.sendData(np.asarray(pacote_timeout))
                             time.sleep(0.05)

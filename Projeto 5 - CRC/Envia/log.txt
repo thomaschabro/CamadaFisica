@@ -1,23 +1,24 @@
-[2022-09-22 - 20:43:35] Iniciando comunicacao HANDSHAKE
-[2022-09-22 - 20:43:35] Enviou Handshake T1 / 14.0 bytes
-[2022-09-22 - 20:43:38] Recebeu resposta de Hanshake T2 / 14 bytes
-[2022-09-22 - 20:43:38] Enviou pacote T3 1/10/ 128 bytes
-[2022-09-22 - 20:43:39] Recebeu resposta T4 / 14 bytes
-[2022-09-22 - 20:43:39] Enviou pacote T3 2/10/ 128 bytes
-[2022-09-22 - 20:43:40] Recebeu resposta T4 / 14 bytes
-[2022-09-22 - 20:43:40] Enviou pacote T3 3/10/ 128 bytes
-[2022-09-22 - 20:43:40] Recebeu resposta T4 / 14 bytes
-[2022-09-22 - 20:43:40] Enviou pacote T3 4/10/ 128 bytes
-[2022-09-22 - 20:43:41] Recebeu resposta T4 / 14 bytes
-[2022-09-22 - 20:43:41] Enviou pacote T3 5/10/ 128 bytes
-[2022-09-22 - 20:43:42] Recebeu resposta T4 / 14 bytes
-[2022-09-22 - 20:43:43] Enviou pacote T3 6/10/ 128 bytes
-[2022-09-22 - 20:43:43] Recebeu resposta T4 / 14 bytes
-[2022-09-22 - 20:43:43] Enviou pacote T3 7/10/ 128 bytes
-[2022-09-22 - 20:43:44] Recebeu resposta T4 / 14 bytes
-[2022-09-22 - 20:43:44] Enviou pacote T3 8/10/ 128 bytes
-[2022-09-22 - 20:43:45] Recebeu resposta T4 / 14 bytes
-[2022-09-22 - 20:43:45] Enviou pacote T3 9/10/ 128 bytes
-[2022-09-22 - 20:43:46] Recebeu resposta T4 / 14 bytes
-[2022-09-22 - 20:43:46] Enviou pacote T3 10/10/ 31 bytes
-[2022-09-22 - 20:43:46] Recebeu resposta T4 / 14 bytes
+[2022-10-13 - 15:34:31] Iniciando comunicacao HANDSHAKE
+[2022-10-13 - 15:34:31] Enviou Handshake T1 / 14.0 bytes
+[2022-10-13 - 15:34:33] Recebeu resposta de Hanshake T2 / 14 bytes
+[2022-10-13 - 15:34:33] Enviou pacote T3 1/10/ 128 bytes
+[2022-10-13 - 15:34:34] Recebeu resposta T4 / 14 bytes
+[2022-10-13 - 15:34:34] Enviou pacote T3 2/10/ 128 bytes
+[2022-10-13 - 15:34:35] Recebeu resposta T4 / 14 bytes
+[2022-10-13 - 15:34:35] Enviou pacote T3 3/10/ 128 bytes
+[2022-10-13 - 15:34:36] Recebeu resposta T4 / 14 bytes
+[2022-10-13 - 15:34:36] Enviou pacote T3 4/10/ 128 bytes
+[2022-10-13 - 15:34:37] Recebeu resposta T4 / 14 bytes
+[2022-10-13 - 15:34:37] Enviou pacote T3 5/10/ 128 bytes
+[2022-10-13 - 15:34:38] Recebeu resposta T4 / 14 bytes
+[2022-10-13 - 15:34:38] Enviou pacote T3 6/10/ 128 bytes
+[2022-10-13 - 15:34:39] Recebeu resposta T4 / 14 bytes
+[2022-10-13 - 15:34:39] Enviou pacote T3 7/10/ 128 bytes
+[2022-10-13 - 15:34:40] Recebeu resposta T4 / 14 bytes
+[2022-10-13 - 15:34:40] Enviou pacote T3 8/10/ 128 bytes
+[2022-10-13 - 15:34:41] Recebeu resposta T4 / 14 bytes
+[2022-10-13 - 15:34:41] Enviou pacote T3 9/10/ 128 bytes
+[2022-10-13 - 15:34:42] Recebeu resposta T4 / 14 bytes
+[2022-10-13 - 15:34:42] Enviou pacote T3 10/10/ 31 bytes
+[2022-10-13 - 15:34:43] Recebeu resposta T4 / 14 bytes
+[2022-10-13 - 15:34:43] Comunicacao encerrada
