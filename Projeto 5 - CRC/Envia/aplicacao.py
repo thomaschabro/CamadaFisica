@@ -65,7 +65,7 @@ def createPackage(tipo, h5, index, nPackages, h6, h7, payload, crc):
     return package
 
 
-serialName = "./dev/cu.usbmodem142101"           # Mac(variacao de)
+serialName = ".dev/cu.usbmodem142101"           # Mac(variacao de)
 imagem     = "./img/imagem.png"   # Imagem 
 
 
@@ -86,6 +86,7 @@ def main():
         #para declarar esse objeto é o nome da porta.
         com1 = enlace(serialName)
         com1.enable()
+        print("com1 enabled")
 
         # -----------------------------------------------------------------------------------------------------------------------------------
         # Fazendo o HANDHSAKE
