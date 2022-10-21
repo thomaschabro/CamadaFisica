@@ -1,5 +1,5 @@
 int sender = 7;
-char mensagem = 'z';
+char mensagem = '?';
 
 void delay_1(){
 //for (int i = 0; i< 2186; i++){
@@ -23,16 +23,17 @@ void loop() {
   // put your main code here, to run repeatedly:
 
   digitalWrite(sender,LOW);
-  delay_1();
+  delay(1100);
   for(int i =0; i<8; i++){
     int correcao = 7-i;
-    digitalWrite(sender, mensagem >> correcao & 0x01);
+    digitalWrite(sender, mensagem >> i & 0x01);
     delay_1();
-    Serial.println(mensagem >> correcao & 0x01);
+    Serial.println(mensagem >> i & 0x01);
   } 
+
   digitalWrite(sender, HIGH);
   Serial.println("--");
-  delay(3000);
+  delay(6000);
 }
 
 
