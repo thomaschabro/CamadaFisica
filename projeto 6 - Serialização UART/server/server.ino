@@ -10,7 +10,7 @@ void delay_2() {
 //for (int i =0; i < 1093, i++;) {
 //  asm("NOP");
 //}
-  delay(500);
+  delay(100);
 }
 
 void setup() {
@@ -22,20 +22,19 @@ int a = 1;
 void loop() {
   // put your main code here, to run repeatedly:
 
-  while(a!=0){  
+  while(a==1){  
     a = digitalRead(server);
   }
   delay_1();
   delay_2();
   byte resultado = 0x00;
   for (int i =0; i<8; i++) {
-  //  unsigned char mensagem = digitalRead(server);
-  //  mask = mask | mensagem;
-  //  mask = mask << i;
     
-    resultado |=  digitalRead(server)<<i;
+    resultado |=  digitalRead(server)<<(i-1);
     delay_1();
+    Serial.println(digitalRead(server));
   }
+  delay_1();
   Serial.println("--");
   Serial.println(resultado);
   
