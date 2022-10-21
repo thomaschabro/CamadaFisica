@@ -1,15 +1,16 @@
 int server = 7;
-bool received = true;
-void delay() {
-for (int i =0; i < 1089, i++;) {
-  asm("NOP");
-}
+void delay_1() {
+//for (int i =0; i < 2186, i++;) {
+//  asm("NOP");
+//}
+  delay(1000);
 }
 
 void delay_2() { 
-for (int i =0; i < 544, i++;) {
-  asm("NOP");
-}
+//for (int i =0; i < 1093, i++;) {
+//  asm("NOP");
+//}
+  delay(500);
 }
 
 void setup() {
@@ -17,22 +18,26 @@ void setup() {
   pinMode(server, INPUT);
   Serial.begin(9600);
 }
-
+int a = 1;
 void loop() {
   // put your main code here, to run repeatedly:
 
-  while(received){
-    received = digitalRead(server);
+  while(a!=0){  
+    a = digitalRead(server);
   }
-  delay();
+  delay_1();
   delay_2();
-  unsigned char mask = 0x00;
-  for (int i =0; i<8, i++;) {
-    unsigned char mensagem = digitalRead(server);
-    mask = mask | mensagem;
-    mask = mask << i;
-    delay();
+  byte resultado = 0x00;
+  for (int i =0; i<8; i++) {
+  //  unsigned char mensagem = digitalRead(server);
+  //  mask = mask | mensagem;
+  //  mask = mask << i;
+    
+    resultado |=  digitalRead(server)<<i;
+    delay_1();
   }
-  Serial.print(mask);
-
+  Serial.println("--");
+  Serial.println(resultado);
+  
+  a = 1;
 }

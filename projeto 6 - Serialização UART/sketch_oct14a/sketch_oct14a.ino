@@ -1,35 +1,38 @@
 int sender = 7;
 char mensagem = 'z';
 
+void delay_1(){
+//for (int i = 0; i< 2186; i++){
+//  asm("NOP");
 
-void delay(){
-for (int i = 0; i< 1089; i++){
-  asm("NOP");
+//}
+  delay(1000);
 }
-}
-
-
 
 void setup() {
   // put your setup code here, to run once:
+  
+  Serial.begin(9600);
   pinMode(sender, OUTPUT);
-
+  digitalWrite(sender, HIGH);
+  delay(3000);
 }
+
 
 void loop() {
   // put your main code here, to run repeatedly:
 
   digitalWrite(sender,LOW);
-  delay();
-  for(int i =0; i<8, i++;){
-    unsigned char mask= 0x01<<i;
-    unsigned char bit = mensagem & mask;
-    digitalWrite(sender, bit);
-    delay();
-  }
-    
-    
- 
+  delay_1();
+  for(int i =0; i<8; i++){
+    int correcao = 7-i;
+    digitalWrite(sender, mensagem >> correcao & 0x01);
+    delay_1();
+    Serial.println(mensagem >> correcao & 0x01);
+  } 
+  digitalWrite(sender, HIGH);
+  Serial.println("--");
+  delay(3000);
 }
 
 
