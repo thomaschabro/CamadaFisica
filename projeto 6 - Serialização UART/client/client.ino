@@ -1,5 +1,5 @@
 int sender = 7;
-char mensagem = 'C';
+char mensagem = 'B';
 
 void delay_1(){
 //for (int i = 0; i< 2186; i++){

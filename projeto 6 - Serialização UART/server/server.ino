@@ -1,13 +1,13 @@
 int server = 7;
 void delay_1() {
-//for (int i =0; i < 2186, i++;) {
+//for (int i =0; i < 21000000, i++;) {
 //  asm("NOP");
 //}
-  delay(1000);
+delay(1000);
 }
 
 void delay_2() { 
-//for (int i =0; i < 1093, i++;) {
+//for (int i =0; i < 21000000/2, i++;) {
 //  asm("NOP");
 //}
   delay(100);
@@ -29,7 +29,6 @@ void loop() {
   delay_2();
   byte resultado = 0x00;
   for (int i =0; i<8; i++) {
-    
     resultado |=  digitalRead(server)<<(i-1);
     delay_1();
   }
