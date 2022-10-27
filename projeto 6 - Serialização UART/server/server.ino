@@ -32,11 +32,11 @@ void loop() {
     
     resultado |=  digitalRead(server)<<(i-1);
     delay_1();
-    Serial.println(digitalRead(server));
   }
   delay_1();
   Serial.println("--");
-  Serial.println(resultado);
+  char letra = resultado;
+  Serial.println(letra);
   
   a = 1;
 }
