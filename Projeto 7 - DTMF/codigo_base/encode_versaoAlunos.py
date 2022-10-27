@@ -1,7 +1,7 @@
 
 #importe as bibliotecas
 import sys
-from suaBibSignal import *
+import suaBibSignal as bib
 import numpy as np
 import sounddevice as sd
 import matplotlib.pyplot as plt
@@ -20,7 +20,7 @@ def todB(s):
 
 
 def main():
-    
+    BibSignal = bib.signalMeu()
    
     #********************************************instruções*********************************************** 
     # seu objetivo aqui é gerar duas senoides. Cada uma com frequencia corresposndente à tecla pressionada
@@ -50,19 +50,19 @@ def main():
     s2 = np.sin(2*np.pi*f2*t)
     s = s1 + s2
 
-
-
-  
-    
     print("Gerando Tons base")
     print("Executando as senoides (emitindo o som)")
     print("Gerando Tom referente ao símbolo : {}".format(numero))
     sd.play(s, fs)
     # Exibe gráficos
-    plt.show()
     # aguarda fim do audio
     sd.wait()
-    plotFFT(self, signal, fs)
+    BibSignal.plotFFT(s, fs)
+    plt.figure()
+    plt.plot(t,s)
+    # plt.legend(['s'])
+    plt.axis([0, 0.01, -2, 2])
+    plt.show()
     
 
 if __name__ == "__main__":
