@@ -1,5 +1,6 @@
 
 #importe as bibliotecas
+import sys
 from suaBibSignal import *
 import numpy as np
 import sounddevice as sd
@@ -36,11 +37,27 @@ def main():
     
 
     print("Inicializando encoder")
+    dicionario = {'1':(697,1209), '2':(697,1336), '3':(697,1477), '4':(770,1209), '5':(770,1336), '6':(770,1477), '7':(852,1209), '8':(852,1336), '9':(852,1477),  '0':(941,1336)}
+    numero = input("Digite um numero de 0 a 9: ")
     print("Aguardando usuário")
+    print("Voce digitou o numero: ", numero)
+    f1,f2 = dicionario[numero]
+    print("Frequencias: ", f1, f2)
+    fs = 44100
+    duracao = 5 
+    t = np.arange(0,duracao,1/fs)
+    s1 = np.sin(2*np.pi*f1*t)
+    s2 = np.sin(2*np.pi*f2*t)
+    s = s1 + s2
+
+
+
+  
+    
     print("Gerando Tons base")
     print("Executando as senoides (emitindo o som)")
-    print("Gerando Tom referente ao símbolo : {}".format(NUM))
-    sd.play(tone, fs)
+    print("Gerando Tom referente ao símbolo : {}".format(numero))
+    sd.play(s, fs)
     # Exibe gráficos
     plt.show()
     # aguarda fim do audio
