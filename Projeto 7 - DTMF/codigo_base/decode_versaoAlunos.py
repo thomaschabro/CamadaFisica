@@ -5,6 +5,7 @@ import peakutils    #alternativas  #from detect_peaks import *   #import pickle
 import numpy as np
 import sounddevice as sd
 import matplotlib.pyplot as plt
+import math
 import time
 
 
@@ -75,13 +76,63 @@ def main():
     index = peakutils.indexes(yf, thres=0.05, min_dist=50)
     print("index de picos {}" .format(index)) #yf é o resultado da transformada de fourier
     frequencias = xf[index]
-    print("frequencias {}" .format(frequencias))
 
-    #linha
-    valor = 0
+    print ("")
 
+    # Verificando valores de frequencias
+    frequencias = [int(el) for el in frequencias] 
+    print (frequencias)
+    for el in frequencias:
+        v_697 = math.isclose(el, 697, rel_tol=1)
+        v_770 = math.isclose(el, 770, rel_tol=1)
+        v_852 = math.isclose(el, 852, rel_tol=1)
+        v_941 = math.isclose(el, 941, rel_tol=1)
+        v_1209 = math.isclose(el, 1209, rel_tol=1)
+        v_1336 = math.isclose(el, 1336, rel_tol=1)
+        v_1477 = math.isclose(el, 1477, rel_tol=1)
+        v_1633 = math.isclose(el, 1633, rel_tol=1)
 
-   
+    
+    if v_1209 and v_697:
+        f1 = 1209
+        f2 = 697
+        print("A tecla captada foi 1")
+    elif v_1336 and v_697:
+        f1 = 1336
+        f2 = 697
+        print("A tecla captada foi 2")
+    elif v_1477 and v_697:
+        f1 = 1477
+        f2 = 697
+        print("A tecla captada foi 3")
+    elif v_1209 and v_770:
+        f1 = 1209
+        f2 = 770
+        print("A tecla captada foi 4")
+    elif v_1336 and v_770:
+        f1 = 1336
+        f2 = 770
+        print("A tecla captada foi 5")
+    elif v_1477 and v_770:
+        f1 = 1477
+        f2 = 770
+        print("A tecla captada foi 6")
+    elif v_1209 and v_852:
+        f1 = 1209
+        f2 = 852
+        print("A tecla captada foi 7")
+    elif v_1336 and v_852:
+        f1 = 1336
+        f2 = 852
+        print("A tecla captada foi 8")
+    elif v_1477 and v_852:
+        f1 = 1477
+        f2 = 852
+        print("A tecla captada foi 9")
+    elif v_941 and v_1336:
+        f1 = 941
+        f2 = 1336
+        print("A tecla captada foi 0")
 
     #printe os picos encontrados! 
     # Aqui você deverá tomar o seguinte cuidado: A funcao  peakutils.indexes retorna as POSICOES dos picos. Não os valores das frequências onde ocorrem! Pense a respeito
@@ -94,6 +145,16 @@ def main():
 
       
     ## Exiba gráficos do fourier do som gravados 
+    # fs = 44100
+    # duracao = 5 
+    # t = np.arange(0,duracao,1/fs)
+    # s1 = np.sin(2*np.pi*f1*t)
+    # s2 = np.sin(2*np.pi*f2*t)
+    # s = s1 + s2
+    # plt.plot(t,s)
+    # plt.axis([0, 0.01, -2, 2])
+
+
     plt.show()
 
 if __name__ == "__main__":
