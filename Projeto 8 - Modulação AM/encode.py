@@ -17,35 +17,74 @@ def main():
     duration = 5  # seconds
     
     # ----------- Gravando o sinal -----------
-    # audio = sd.rec(int(44100*duration), 44100, channels=1)
+    audio = sd.rec(int(44100*duration), 44100, channels=1)
     
-    # sd.wait()
+    sd.wait()
 
-    # sf.write('audio.wav', audio, 44100)
+    sf.write('audio.wav', audio, 44100)
     
 
-  
+    
     print("gravacao finalizada")
     #salva audio
     
-    audio = sf.read('audio.wav')
+    
+    t = np.arange(0,5,1/44100)
 
+    dados = audio[:,0]
+    dados_norm = dados/np.max(abs(dados))
+    
 
-    dados = audio[0]
     print(dados)
 
     filtrado = f1.filtro(dados, 44100, 2200)
     # sd.play(filtrado, 44100)    
     # sd.wait()
-    t = np.arange(0,5,1/44100)
+
+    
     portadora = np.sin(2*np.pi*14000*t)
     modulada = filtrado*portadora
     normalizada = modulada/max(abs(modulada))
     sf.write('modulada.wav', normalizada, 44100)
-    sd.play(normalizada, 44100)
-    sd.wait()
+    
 
 
+    # PLOTANDO GRAFICOS
+    plt.figure(0)
+    plt.plot(t, dados_norm)
+    plt.title("Sinal de áudio original normalizado")
+    plt.xlabel("Tempo")
+    plt.ylabel("Amplitude")
+    plt.grid()
+    plt.show()
+
+    plt.figure(1)
+    plt.plot(t, filtrado)
+    plt.title("Sinal de áudio filtrado")
+    plt.xlabel("Tempo")
+    plt.ylabel("Amplitude")
+    plt.grid()
+    plt.show()
+
+    plt.figure(2)
+    signal.plotFFT(filtrado, 44100)
+    plt.title("Fourier do sinal filtrado")
+    plt.show()
+
+    plt.figure(3)
+    plt.plot(t, modulada)
+    plt.title("Sinal de áudio modulado")
+    plt.xlabel("Tempo")
+    plt.ylabel("Amplitude")
+    plt.grid()
+    plt.show()
+
+    plt.figure(4)
+    signal.plotFFT(modulada, 44100)
+    plt.title("Fourier do sinal modulado")
+    plt.show()
+
+    
 
 
 

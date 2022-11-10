@@ -27,5 +27,5 @@ class signalMeu:
         x,y = self.calcFFT(signal, fs)
         plt.figure()
         plt.plot(x, np.abs(y))
-        plt.axis([0, 2000, 0, 1.1*np.max(np.abs(y))])
-        plt.title('Fourier')
+        plt.axis([0, 20000, 0, 1.1*np.max(np.abs(y))])
+        
