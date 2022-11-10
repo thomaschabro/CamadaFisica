@@ -28,15 +28,24 @@ def main():
     print("gravacao finalizada")
     #salva audio
     
-    audio = sf.read('audio.wav',44100,5)
+    audio = sf.read('audio.wav')
 
 
     dados = audio[0]
     print(dados)
 
     filtrado = f1.filtro(dados, 44100, 2200)
-    sd.play(dados, 44100)    
+    # sd.play(filtrado, 44100)    
+    # sd.wait()
+    t = np.arange(0,5,1/44100)
+    portadora = np.sin(2*np.pi*14000*t)
+    modulada = filtrado*portadora
+    normalizada = modulada/max(abs(modulada))
+    sd.play(normalizada, 44100)
     sd.wait()
+
+
+
 
 
 
