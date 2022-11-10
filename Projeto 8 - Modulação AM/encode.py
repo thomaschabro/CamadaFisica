@@ -41,6 +41,7 @@ def main():
     portadora = np.sin(2*np.pi*14000*t)
     modulada = filtrado*portadora
     normalizada = modulada/max(abs(modulada))
+    sf.write('modulada.wav', normalizada, 44100)
     sd.play(normalizada, 44100)
     sd.wait()
 
