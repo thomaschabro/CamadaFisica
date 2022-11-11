@@ -16,5 +16,5 @@ def main():
     
     # ----------- Obtendo o sinal modulado -----------
     audio = sd.read("")
-
+    
     
