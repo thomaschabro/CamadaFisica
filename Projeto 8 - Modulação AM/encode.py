@@ -92,10 +92,6 @@ def main():
     print("...     FIM")
     # ----------- Fim da gravação -----------
 
-    return 0
-
-
-
 
 if __name__ == "__main__":
     main()
