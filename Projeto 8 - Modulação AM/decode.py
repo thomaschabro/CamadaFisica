@@ -19,15 +19,17 @@ def main():
 
     
     # ----------- Obtendo o sinal modulado -----------
-    audio = sf.read('modulada.wav', channels=2, samplerate=44100)
-    print(audio)
+    audio = sf.read('modulada.wav')
+    print(audio[0])
     t = np.arange(0,duration,1/44100)
     portadora = np.sin(2*np.pi*14000*t)
-    desmodulada = audio*portadora
+    desmodulada = audio[0]*portadora
 
 
     filtrada = f1.filtro(desmodulada, 44100, 2200)
 
+    sd.play(filtrada, 44100)
+    sd.wait()
 
     #graficos
     plt.figure(0)
@@ -47,15 +49,14 @@ def main():
     plt.show()
 
     plt.figure(2)
-    plt.plot(t, filtrada)
+    signal.plotFFT(filtrada, 44100)
     plt.title("Sinal de áudio filtrado")
-    plt.xlabel("Tempo")
+    plt.xlabel("Frequência")
     plt.ylabel("Amplitude")
     plt.grid()
     plt.show()
 
 
-
-
     
-    
+if __name__ == "__main__":
+    main()
